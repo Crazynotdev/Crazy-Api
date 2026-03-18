@@ -3,123 +3,134 @@
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>CrazyApi — Changelog</title>
-<link rel="stylesheet" href="/assets/style.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#07080e;--s1:#0e0e1a;--s2:#141422;--s3:#1c1c2e;--b:#1f1f33;--b2:#2b2b45;--ac:#6c63ff;--ac2:#a78bfa;--acl:rgba(108,99,255,.1);--gr:#22c55e;--rd:#ef4444;--pk:#ec4899;--tx:#f0f0f8;--tx2:#8888a8;--dim:#404060}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:linear-gradient(var(--b) 0%,transparent 0%) 0 0/44px 44px,linear-gradient(90deg,var(--b) 0%,transparent 0%) 0 0/44px 44px;opacity:.4}
+#nav{position:sticky;top:0;z-index:200;height:52px;display:flex;align-items:center;padding:0 1.25rem;gap:1.25rem;background:rgba(7,8,14,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--b)}
+.logo{font-weight:800;font-size:1.1rem;letter-spacing:-.4px;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none}
+.nav-links{display:flex;gap:.1rem}
+.nl{padding:.32rem .7rem;border-radius:6px;color:var(--tx2);font-size:.78rem;font-weight:500;text-decoration:none;transition:all .13s}
+.nl:hover,.nl.on{color:var(--tx);background:var(--s3)}
+.nav-right{margin-left:auto;display:flex;gap:.4rem}
+.nb{padding:.32rem .875rem;border-radius:6px;font-size:.77rem;font-weight:600;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .13s;text-decoration:none;display:inline-block}
+.nb-o{background:var(--s3);color:var(--tx2);border:1px solid var(--b2)}.nb-o:hover{color:var(--tx)}
+.nb-s{background:var(--ac);color:#fff}.nb-s:hover{background:var(--ac2)}
+.wrap{max-width:860px;margin:0 auto;padding:2.5rem 1.5rem 5rem;position:relative;z-index:1}
+h1{font-size:1.85rem;font-weight:900;letter-spacing:-.6px;margin-bottom:.4rem}
+.tag{font-size:.62rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--ac2);font-family:'Geist Mono',monospace;margin-bottom:.5rem}
+.lead{color:var(--tx2);font-size:.92rem;line-height:1.75;margin-bottom:2.5rem;max-width:580px}
+.sec h2{font-size:1.1rem;font-weight:700;margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:.5rem}
+.sec h2::before{content:'';width:3px;height:1em;background:var(--ac);border-radius:2px;flex-shrink:0;display:inline-block}
+.sec{margin-bottom:2.5rem}
+.p{color:var(--tx2);font-size:.88rem;line-height:1.8;margin-bottom:.875rem}
+.code{background:var(--s2);border:1px solid var(--b);border-radius:7px;padding:.875rem 1rem;font-family:'Geist Mono',monospace;font-size:.76rem;color:var(--ac2);white-space:pre;overflow-x:auto;line-height:1.75;margin:.875rem 0}
+.ic{background:var(--s2);border:1px solid var(--b);color:var(--ac2);padding:1px 5px;border-radius:3px;font-family:'Geist Mono',monospace;font-size:.82em}
+.tbl{width:100%;border-collapse:collapse;font-size:.82rem;margin:.875rem 0;border-radius:7px;overflow:hidden;border:1px solid var(--b)}
+.tbl th{background:var(--s2);color:var(--tx2);text-align:left;padding:.55rem .875rem;font-size:.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.tbl td{padding:.65rem .875rem;border-top:1px solid var(--b);color:var(--tx)}
+.btn{padding:.6rem 1.25rem;border-radius:7px;font-size:.84rem;font-weight:700;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .15s;text-decoration:none;display:inline-block}
+.btn-p{background:var(--ac);color:#fff}.btn-p:hover{background:var(--ac2);transform:translateY(-1px)}
+.btn-s{background:var(--s2);color:var(--tx);border:1px solid var(--b2)}.btn-s:hover{border-color:var(--ac);color:var(--ac2)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.75rem;margin-top:1.25rem}
+.gc{background:var(--s1);border:1px solid var(--b);border-radius:9px;padding:1.1rem}
+.gc-n{font-size:.88rem;font-weight:700;margin-bottom:.2rem}
+.gc-d{color:var(--tx2);font-size:.76rem;line-height:1.55}
+.f-group{margin-bottom:.875rem}
+.f-label{display:block;font-size:.76rem;font-weight:600;color:var(--tx2);margin-bottom:.35rem}
+.f-inp{width:100%;padding:.58rem .875rem;background:var(--s2);border:1px solid var(--b2);border-radius:7px;color:var(--tx);font-family:'Inter',sans-serif;font-size:.88rem;outline:none;transition:border-color .15s}
+.f-inp:focus{border-color:var(--ac)}
+.f-inp::placeholder{color:var(--dim)}
+.f-btn{width:100%;padding:.65rem;background:var(--ac);color:#fff;border:none;border-radius:7px;font-weight:700;font-size:.9rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all .18s;margin-top:.35rem;display:flex;align-items:center;justify-content:center;gap:.45rem}
+.f-btn:hover{background:var(--ac2);transform:translateY(-1px)}
+.f-btn:disabled{opacity:.6;transform:none;cursor:not-allowed}
+.f-err{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);color:#fca5a5;border-radius:6px;padding:.55rem .8rem;font-size:.77rem;margin-bottom:.875rem;display:none}
+.f-ok{background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);color:#4ade80;border-radius:6px;padding:.55rem .8rem;font-size:.77rem;margin-bottom:.875rem;display:none}
+.key-box{background:var(--s2);border:1px solid rgba(108,99,255,.3);border-radius:8px;padding:1rem;margin-bottom:1rem}
+.key-lbl{font-size:.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--tx2);margin-bottom:.4rem;font-family:'Geist Mono',monospace}
+.key-row{background:var(--bg);border:1px solid var(--b);border-radius:6px;padding:.55rem .8rem;font-family:'Geist Mono',monospace;font-size:.77rem;color:var(--ac2);display:flex;align-items:center;gap:.4rem;word-break:break-all}
+.cp-btn{background:none;border:none;color:var(--dim);cursor:pointer;font-size:.7rem;padding:.18rem .35rem;border-radius:3px;transition:color .13s;flex-shrink:0}
+.cp-btn:hover{color:var(--tx)}
+.spin{display:none;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .5s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.dash-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;margin-bottom:1.25rem}
+.dc{background:var(--s1);border:1px solid var(--b);border-radius:9px;padding:1rem}
+.dc-l{font-size:.62rem;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.7px;margin-bottom:.3rem}
+.dc-v{font-size:1.4rem;font-weight:800;letter-spacing:-.3px}
+.dc-s{font-size:.7rem;color:var(--tx2);margin-top:.15rem}
+.plan{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.67rem;font-weight:700;font-family:'Geist Mono',monospace}
+.free{background:var(--acl);color:var(--ac2);border:1px solid rgba(108,99,255,.22)}
+.pro{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.22)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+.toast{position:fixed;bottom:1.2rem;right:1.2rem;background:var(--s3);border:1px solid var(--b2);color:var(--tx);padding:.55rem 1rem;border-radius:7px;font-size:.78rem;font-weight:600;z-index:9999;transform:translateY(14px);opacity:0;transition:all .22s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+@media(max-width:600px){.grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 <nav id="nav">
-  <a class="nav-logo" href="/">CrazyApi</a>
+  <a class="logo" href="/">CrazyApi</a>
   <div class="nav-links">
-    <a class="nav-a always" href="/home"       data-page="home">Dashboard</a>
-    <a class="nav-a always" href="/downloader" data-page="downloader">Downloaders</a>
-    <a class="nav-a"        href="/tools"      data-page="tools">Tools</a>
-    <a class="nav-a"        href="/anime"      data-page="anime">Anime</a>
-    <a class="nav-a"        href="/search"     data-page="search">Search</a>
-    <a class="nav-a"        href="/sports"     data-page="sports">Sports</a>
-    <a class="nav-a"        href="/fun"        data-page="fun">Fun</a>
-    <a class="nav-a"        href="/docs"       data-page="docs">Docs</a>
-    <a class="nav-a active" href="/changelog"  data-page="changelog">Changelog</a>
-    <a class="nav-a"        href="/contact"    data-page="contact">Contact</a>
+    <a class="nl" href="/">APIs</a>
+    <a class="nl" href="/home.html">Home</a>
+    <a class="nl" href="/docs.html">Docs</a>
+    <a class="nl" href="/changelog.html" class="on">Changelog</a>
+    <a class="nl" href="/contact.html">Contact</a>
   </div>
   <div class="nav-right">
-    <div id="nav-auth" style="display:flex;gap:.5rem">
-      <a class="nav-btn btn-outline" href="/login">Login</a>
-      <a class="nav-btn btn-solid" href="/register">Get API Key &rarr;</a>
-    </div>
-    <div id="nav-user" style="display:none;align-items:center;gap:.5rem">
-      <a class="nav-btn btn-outline" href="/dashboard" style="display:flex;align-items:center;gap:.4rem">
-        <span style="width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block"></span>
-        <span id="nav-uname">User</span>
-      </a>
-    </div>
+    <a class="nb nb-o" href="/login.html">Login</a>
+    <a class="nb nb-s" href="/register.html">Get API Key &rarr;</a>
   </div>
 </nav>
-
-<div class="changelog-wrap">
-  <div style="font-size:.68rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent2);font-family:'Geist Mono',monospace;margin-bottom:.5rem">History</div>
-  <h1 style="font-size:2rem;font-weight:900;letter-spacing:-.75px;margin-bottom:.5rem">Changelog</h1>
-  <p style="color:var(--text2);margin-bottom:3rem">All notable changes, new endpoints and fixes.</p>
-
-  <!-- v2.0.0 -->
-  <div class="cl-entry">
-    <div class="cl-dot"><div class="cl-dot-inner"></div></div>
-    <div class="cl-right">
-      <div class="cl-ver">v2.0.0</div>
-      <div class="cl-date">March 2025</div>
-      <div class="cl-title">Complete Rewrite — Professional Platform</div>
-      <ul class="cl-items">
-        <li><span class="cl-tag cl-new">NEW</span> Supabase authentication — register, login, dashboard</li>
-        <li><span class="cl-tag cl-new">NEW</span> 6 dedicated category pages with interactive docs</li>
-        <li><span class="cl-tag cl-new">NEW</span> Live "Try it" panel on every endpoint with cURL/JS/Python examples</li>
-        <li><span class="cl-tag cl-new">NEW</span> Fun category — jokes, memes, quotes, facts, trivia</li>
-        <li><span class="cl-tag cl-new">NEW</span> Search category — Wikipedia, NPM, GitHub, Dictionary, Lyrics</li>
-        <li><span class="cl-tag cl-new">NEW</span> Sports — live scores, standings for 9 leagues, team search</li>
-        <li><span class="cl-tag cl-new">NEW</span> Anime — waifu.pics + full Jikan/MAL integration</li>
-        <li><span class="cl-tag cl-new">NEW</span> Tools — UUID, Lorem Ipsum, Screenshot, Base64 added</li>
-        <li><span class="cl-tag cl-new">NEW</span> Global rate limiter (120 req/min per IP)</li>
-        <li><span class="cl-tag cl-new">NEW</span> <span class="ic">/api/stats</span> live server metrics endpoint</li>
-        <li><span class="cl-tag cl-new">NEW</span> Changelog, Contact &amp; Pricing pages</li>
-        <li><span class="cl-tag cl-new">NEW</span> Morgan request logging + Helmet security headers</li>
-        <li><span class="cl-tag cl-fix">FIX</span> Downloader now uses cobalt.tools with proper timeout handling</li>
-        <li><span class="cl-tag cl-fix">FIX</span> Consistent JSON envelope on all error responses</li>
+<div class="wrap">
+  <div class="tag">History</div>
+  <h1>Changelog</h1>
+  <p class="lead">All notable changes and new endpoints.</p>
+  <div style="display:flex;flex-direction:column;gap:2rem">
+    <div style="background:var(--s1);border:1px solid var(--b);border-radius:9px;padding:1.5rem">
+      <div style="font-family:'Geist Mono',monospace;font-size:.75rem;font-weight:700;color:var(--ac2);margin-bottom:.2rem">v3.0.0 — March 2025</div>
+      <div style="font-size:1rem;font-weight:700;margin-bottom:.75rem">Major Expansion — 130+ Endpoints</div>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:.4rem">
+        <li style="font-size:.82rem;color:var(--tx2)">🆕 AI category (21 eps): GPT-4o, Gemini, DeepSeek, Llama, Mistral, Flux/Sora images, translate, summarize, code, story, bio, caption, roast, lyrics</li>
+        <li style="font-size:.82rem;color:var(--tx2)">🆕 Stalker: GitHub + top repos, TikTok, Instagram, Twitter/X, NPM, IP, WhatsApp</li>
+        <li style="font-size:.82rem;color:var(--tx2)">🆕 Checker: API key, email, URL, domain, phone validator</li>
+        <li style="font-size:.82rem;color:var(--tx2)">🆕 TempGen: mail.tm (4 eps) + guerrillamail (2 eps) + temp phone</li>
+        <li style="font-size:.82rem;color:var(--tx2)">🆕 Shortener: TinyURL + is.gd + da.gd + expand</li>
+        <li style="font-size:.82rem;color:var(--tx2)">🆕 Fun: 29 endpoints (up from 5)</li>
+        <li style="font-size:.82rem;color:var(--tx2)">🆕 Tools: DNS, hash, color, timezone, random, textcase added</li>
+        <li style="font-size:.82rem;color:var(--tx2)">🆕 Search: Movies (OMDb), Books (OpenLibrary) added</li>
+        <li style="font-size:.82rem;color:var(--tx2)">🆕 Sports: Player search, next fixtures, event details, event search</li>
+        <li style="font-size:.82rem;color:var(--tx2)">🆕 Single-page API explorer (index.html)</li>
+        <li style="font-size:.82rem;color:var(--tx2)">🆕 Supabase auth: register/login/dashboard</li>
+        <li style="font-size:.82rem;color:var(--tx2)">⬆️ Rate limit increased to 200 req/min</li>
       </ul>
     </div>
-  </div>
-
-  <!-- v1.2.0 -->
-  <div class="cl-entry">
-    <div class="cl-dot"><div class="cl-dot-inner" style="background:var(--text2)"></div></div>
-    <div class="cl-right">
-      <div class="cl-ver">v1.2.0</div>
-      <div class="cl-date">January 2025</div>
-      <div class="cl-title">Downloaders Expanded</div>
-      <ul class="cl-items">
-        <li><span class="cl-tag cl-new">NEW</span> Instagram downloader endpoint</li>
-        <li><span class="cl-tag cl-new">NEW</span> Twitter/X media downloader</li>
-        <li><span class="cl-tag cl-new">NEW</span> Facebook video downloader</li>
-        <li><span class="cl-tag cl-fix">FIX</span> YouTube MP4 quality parameter now respected</li>
-        <li><span class="cl-tag cl-fix">FIX</span> TikTok watermark removal improved</li>
+    <div style="background:var(--s1);border:1px solid var(--b);border-radius:9px;padding:1.5rem">
+      <div style="font-family:'Geist Mono',monospace;font-size:.75rem;font-weight:700;color:var(--tx2);margin-bottom:.2rem">v2.0.0 — January 2025</div>
+      <div style="font-size:1rem;font-weight:700;margin-bottom:.75rem">Professional Platform</div>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:.4rem">
+        <li style="font-size:.82rem;color:var(--tx2)">🆕 Interactive Try-it-live on every endpoint</li>
+        <li style="font-size:.82rem;color:var(--tx2)">🆕 cURL / JavaScript / Python code examples</li>
+        <li style="font-size:.82rem;color:var(--tx2)">🆕 Live server stats (uptime, memory, requests)</li>
+        <li style="font-size:.82rem;color:var(--tx2)">🔧 Consistent JSON response envelope</li>
       </ul>
     </div>
-  </div>
-
-  <!-- v1.1.0 -->
-  <div class="cl-entry">
-    <div class="cl-dot"><div class="cl-dot-inner" style="background:var(--text2)"></div></div>
-    <div class="cl-right">
-      <div class="cl-ver">v1.1.0</div>
-      <div class="cl-date">December 2024</div>
-      <div class="cl-title">Tools &amp; Anime</div>
-      <ul class="cl-items">
-        <li><span class="cl-tag cl-new">NEW</span> QR Code generator (PNG + SVG)</li>
-        <li><span class="cl-tag cl-new">NEW</span> URL shortener via TinyURL</li>
-        <li><span class="cl-tag cl-new">NEW</span> IP geolocation endpoint</li>
-        <li><span class="cl-tag cl-new">NEW</span> Anime search via Jikan (MyAnimeList)</li>
-        <li><span class="cl-tag cl-new">NEW</span> Random anime quotes</li>
-        <li><span class="cl-tag cl-fix">FIX</span> CORS headers now set correctly</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- v1.0.0 -->
-  <div class="cl-entry">
-    <div class="cl-dot"><div class="cl-dot-inner" style="background:var(--dim)"></div></div>
-    <div class="cl-right">
-      <div class="cl-ver">v1.0.0</div>
-      <div class="cl-date">November 2024</div>
-      <div class="cl-title">Initial Release</div>
-      <ul class="cl-items">
-        <li><span class="cl-tag cl-new">NEW</span> Express.js REST API server</li>
-        <li><span class="cl-tag cl-new">NEW</span> YouTube MP3 downloader</li>
-        <li><span class="cl-tag cl-new">NEW</span> YouTube MP4 downloader</li>
-        <li><span class="cl-tag cl-new">NEW</span> TikTok downloader</li>
-        <li><span class="cl-tag cl-new">NEW</span> Basic API key authentication</li>
-        <li><span class="cl-tag cl-new">NEW</span> JSON response format with status + creator fields</li>
+    <div style="background:var(--s1);border:1px solid var(--b);border-radius:9px;padding:1.5rem">
+      <div style="font-family:'Geist Mono',monospace;font-size:.75rem;font-weight:700;color:var(--dim);margin-bottom:.2rem">v1.0.0 — November 2024</div>
+      <div style="font-size:1rem;font-weight:700;margin-bottom:.75rem">Initial Release</div>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:.4rem">
+        <li style="font-size:.82rem;color:var(--tx2)">🆕 Express.js REST API server with API key auth</li>
+        <li style="font-size:.82rem;color:var(--tx2)">🆕 YouTube MP3/MP4, TikTok, Instagram downloaders</li>
+        <li style="font-size:.82rem;color:var(--tx2)">🆕 Basic tools, anime images, Jikan API integration</li>
       </ul>
     </div>
   </div>
 </div>
-
-<script src="/assets/app.js"></script>
-<script>setNavActive('changelog');</script>
+<div class="toast" id="toast"></div>
 </body>
 </html>

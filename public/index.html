@@ -1,149 +1,508 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>CrazyApi — Free Multi-Purpose REST API</title>
-<meta name="description" content="35+ free REST API endpoints. Downloaders, anime, search, sports, tools & more."/>
-<link rel="stylesheet" href="/assets/style.css"/>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CrazyApi — API Explorer</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07080e;--s1:#0e0e1a;--s2:#141422;--s3:#1c1c2e;--s4:#242438;
+  --b:#1f1f33;--b2:#2b2b45;--b3:#3a3a58;
+  --ac:#6c63ff;--ac2:#a78bfa;--acl:rgba(108,99,255,.1);
+  --gr:#22c55e;--rd:#ef4444;--yw:#f59e0b;--pk:#ec4899;--bl:#3b82f6;
+  --tx:#f0f0f8;--tx2:#8888a8;--dim:#404060;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;overflow:hidden;height:100vh}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:linear-gradient(var(--b) 0%,transparent 0%) 0 0/44px 44px,linear-gradient(90deg,var(--b) 0%,transparent 0%) 0 0/44px 44px;background-attachment:fixed;opacity:.4}
+
+/* NAV */
+#nav{position:fixed;top:0;left:0;right:0;z-index:200;height:52px;display:flex;align-items:center;padding:0 1.25rem;gap:1.25rem;background:rgba(7,8,14,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--b)}
+.logo{font-weight:800;font-size:1.1rem;letter-spacing:-.4px;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;flex-shrink:0}
+.nav-links{display:flex;gap:.1rem}
+.nl{padding:.32rem .7rem;border-radius:6px;color:var(--tx2);font-size:.78rem;font-weight:500;text-decoration:none;transition:all .13s;white-space:nowrap}
+.nl:hover,.nl.on{color:var(--tx);background:var(--s3)}
+.nav-right{margin-left:auto;display:flex;gap:.4rem;align-items:center;flex-shrink:0}
+.nb{padding:.32rem .875rem;border-radius:6px;font-size:.77rem;font-weight:600;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .13s;text-decoration:none;display:inline-block}
+.nb-o{background:var(--s3);color:var(--tx2);border:1px solid var(--b2)}
+.nb-o:hover{color:var(--tx)}
+.nb-s{background:var(--ac);color:#fff}
+.nb-s:hover{background:var(--ac2)}
+.stat-chip{font-family:'Geist Mono',monospace;font-size:.68rem;color:var(--tx2);display:flex;align-items:center;gap:.3rem}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--gr);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* LAYOUT */
+.layout{display:flex;height:100vh;padding-top:52px}
+
+/* SIDEBAR */
+.sidebar{width:210px;flex-shrink:0;border-right:1px solid var(--b);overflow-y:auto;background:var(--s1);padding:.6rem 0}
+.sidebar::-webkit-scrollbar{width:2px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--b2)}
+.sb-section{font-size:.55rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--dim);padding:0 .875rem;margin:.875rem 0 .25rem;font-family:'Geist Mono',monospace}
+.sb-btn{display:flex;align-items:center;gap:.5rem;padding:.38rem .875rem;color:var(--tx2);font-size:.79rem;font-weight:500;cursor:pointer;transition:all .12s;background:none;border:none;width:100%;text-align:left;font-family:'Inter',sans-serif;border-left:2px solid transparent;white-space:nowrap}
+.sb-btn:hover{color:var(--tx);background:var(--s2)}
+.sb-btn.on{color:var(--ac2);background:var(--acl);border-left-color:var(--ac)}
+.sb-cnt{margin-left:auto;font-size:.58rem;font-family:'Geist Mono',monospace;background:var(--s3);color:var(--dim);padding:0 4px;border-radius:3px;flex-shrink:0}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;background:var(--bg)}
+.content::-webkit-scrollbar{width:4px}
+.content::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+
+/* GROUP PANEL */
+.grp{display:none;padding:1.5rem 1.75rem 3rem;max-width:920px}
+.grp.on{display:block}
+.grp-hdr{margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--b)}
+.grp-title{font-size:1.2rem;font-weight:800;letter-spacing:-.4px;display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem}
+.grp-desc{color:var(--tx2);font-size:.82rem;line-height:1.6}
+.sub-title{font-size:.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);font-family:'Geist Mono',monospace;margin:1.25rem 0 .5rem;padding-bottom:.35rem;border-bottom:1px solid var(--b)}
+
+/* ENDPOINT */
+.ep{background:var(--s1);border:1px solid var(--b);border-radius:9px;overflow:hidden;margin-bottom:.5rem;transition:border-color .15s}
+.ep:hover{border-color:var(--b2)}
+.ep-hdr{display:flex;align-items:center;gap:.6rem;padding:.7rem 1rem;cursor:pointer;user-select:none;transition:background .12s}
+.ep-hdr:hover{background:var(--s2)}
+.badge{padding:2px 7px;border-radius:4px;font-size:.58rem;font-weight:700;font-family:'Geist Mono',monospace;flex-shrink:0;letter-spacing:.5px}
+.get{background:rgba(34,197,94,.1);color:#4ade80}
+.post{background:rgba(245,158,11,.1);color:#fbbf24}
+.ep-path{font-family:'Geist Mono',monospace;font-size:.74rem;color:var(--tx2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ep-label{color:var(--tx2);font-size:.74rem;margin-left:auto;flex-shrink:0;display:none}
+@media(min-width:800px){.ep-label{display:block}}
+.chv{color:var(--dim);font-size:.55rem;transition:transform .2s;flex-shrink:0;margin-left:.4rem}
+.chv.open{transform:rotate(180deg)}
+.ep-body{display:none;border-top:1px solid var(--b)}
+.ep-body.open{display:block}
+.ep-inner{padding:1.1rem}
+
+/* PARAMS */
+.ptbl{width:100%;border-collapse:collapse;font-size:.76rem;margin-bottom:1.1rem}
+.ptbl th{background:var(--s2);color:var(--tx2);text-align:left;padding:.42rem .75rem;font-size:.57rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.ptbl th:first-child{border-radius:6px 0 0 6px}
+.ptbl th:last-child{border-radius:0 6px 6px 0}
+.ptbl td{padding:.52rem .75rem;border-bottom:1px solid var(--b);color:var(--tx);vertical-align:top}
+.ptbl tr:last-child td{border-bottom:none}
+.pn{font-family:'Geist Mono',monospace;color:var(--ac2);font-size:.7rem}
+.pt{font-family:'Geist Mono',monospace;color:var(--pk);font-size:.68rem}
+.req{background:rgba(239,68,68,.1);color:#fca5a5;font-size:.56rem;padding:0 4px;border-radius:3px;margin-left:3px;font-family:'Geist Mono',monospace}
+.opt{background:var(--s3);color:var(--dim);font-size:.56rem;padding:0 4px;border-radius:3px;margin-left:3px;font-family:'Geist Mono',monospace}
+
+/* CODE TABS */
+.cw{border:1px solid var(--b);border-radius:7px;overflow:hidden;margin-bottom:1.1rem}
+.ct{display:flex;background:var(--s2);border-bottom:1px solid var(--b);padding:3px 3px 0;gap:1px}
+.ctab{padding:.26rem .75rem;border-radius:5px 5px 0 0;font-size:.68rem;font-weight:600;cursor:pointer;background:none;border:none;color:var(--dim);font-family:'Inter',sans-serif;transition:all .12s}
+.ctab.on{background:var(--s3);color:var(--tx2)}
+.cpanel{display:none;background:var(--bg);padding:.875rem;font-family:'Geist Mono',monospace;font-size:.7rem;line-height:1.75;color:var(--ac2);white-space:pre;overflow-x:auto}
+.cpanel.on{display:block}
+
+/* TRY IT */
+.try{background:var(--s2);border:1px solid var(--b);border-radius:7px;overflow:hidden}
+.try-hdr{padding:.52rem .875rem;background:var(--s3);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between}
+.try-lbl{font-size:.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);font-family:'Geist Mono',monospace}
+.try-st{font-size:.68rem;font-family:'Geist Mono',monospace}
+.ok{color:var(--gr)}.er{color:var(--rd)}.ms{color:var(--dim);margin-left:.3rem}
+.try-body{padding:.875rem}
+.tfields{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.6rem}
+.tf{flex:1;min-width:110px;padding:.42rem .75rem;background:var(--s1);border:1px solid var(--b2);border-radius:6px;color:var(--tx);font-family:'Geist Mono',monospace;font-size:.71rem;outline:none;transition:border-color .15s}
+.tf:focus{border-color:var(--ac)}
+.tf::placeholder{color:var(--dim)}
+.tbtn{padding:.42rem 1rem;background:var(--ac);color:#fff;border:none;border-radius:6px;font-weight:700;font-size:.75rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all .12s;display:flex;align-items:center;gap:.4rem}
+.tbtn:hover{background:var(--ac2)}
+.tbtn:disabled{opacity:.5;cursor:not-allowed}
+.spin{display:none;width:10px;height:10px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .5s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.resp{display:none;background:var(--bg);border-top:1px solid var(--b);padding:.875rem;font-family:'Geist Mono',monospace;font-size:.7rem;color:var(--tx);max-height:260px;overflow-y:auto;white-space:pre-wrap;line-height:1.7}
+.resp.on{display:block}
+.resp::-webkit-scrollbar{width:3px}
+.resp::-webkit-scrollbar-thumb{background:var(--b2)}
+.jk{color:var(--ac2)}.jv{color:#86efac}.jn{color:#fbbf24}.jb{color:var(--pk)}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.2rem;right:1.2rem;background:var(--s3);border:1px solid var(--b2);color:var(--tx);padding:.55rem 1rem;border-radius:7px;font-size:.78rem;font-weight:600;z-index:9999;transform:translateY(14px);opacity:0;transition:all .22s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+</style>
 </head>
 <body>
+
+<!-- NAV -->
 <nav id="nav">
-  <a class="nav-logo" href="/">CrazyApi</a>
-  <div class="nav-links">
-    <a class="nav-a always" href="/home"       data-page="home">Dashboard</a>
-    <a class="nav-a always" href="/downloader" data-page="downloader">Downloaders</a>
-    <a class="nav-a"        href="/tools"      data-page="tools">Tools</a>
-    <a class="nav-a"        href="/anime"      data-page="anime">Anime</a>
-    <a class="nav-a"        href="/search"     data-page="search">Search</a>
-    <a class="nav-a"        href="/sports"     data-page="sports">Sports</a>
-    <a class="nav-a"        href="/fun"        data-page="fun">Fun</a>
-    <a class="nav-a"        href="/docs"       data-page="docs">Docs</a>
-    <a class="nav-a"        href="/changelog"  data-page="changelog">Changelog</a>
-    <a class="nav-a"        href="/contact"    data-page="contact">Contact</a>
-  </div>
+  <a class="logo" href="/">CrazyApi</a>
+  <nav class="nav-links">
+    <a class="nl on" href="/">APIs</a>
+    <a class="nl" href="/home.html">Home</a>
+    <a class="nl" href="/docs.html">Docs</a>
+    <a class="nl" href="/changelog.html">Changelog</a>
+    <a class="nl" href="/contact.html">Contact</a>
+  </nav>
+  <div class="stat-chip"><span class="live-dot"></span><span id="ns-up">—</span> · <span id="ns-mem">—</span> · <span id="ns-req">—</span> req</div>
   <div class="nav-right">
-    <div id="nav-auth" style="display:flex;gap:.5rem">
-      <a class="nav-btn btn-outline" href="/login">Login</a>
-      <a class="nav-btn btn-solid" href="/register">Get API Key &rarr;</a>
-    </div>
-    <div id="nav-user" style="display:none;align-items:center;gap:.5rem">
-      <a class="nav-btn btn-outline" href="/dashboard" style="display:flex;align-items:center;gap:.4rem">
-        <span style="width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block"></span>
-        <span id="nav-uname">User</span>
-      </a>
-    </div>
+    <a class="nb nb-o" href="/login.html">Login</a>
+    <a class="nb nb-s" href="/register.html">Get API Key →</a>
   </div>
 </nav>
 
-<div class="home-wrap">
-  <!-- HERO -->
-  <div class="hero">
-    <div class="hero-eyebrow"><span class="live-dot"></span> v2.0 &nbsp;·&nbsp; 35+ Endpoints Live</div>
-    <h1>The <span class="g">Professional</span><br/>Free REST API</h1>
-    <p class="hero-desc">Downloaders, anime, search, sports &amp; dev tools — all through one simple API. JSON responses, API key auth, Supabase-powered accounts.</p>
-    <div class="hero-cta">
-      <a class="btn btn-primary" href="/register">Get Free API Key &rarr;</a>
-      <a class="btn btn-secondary" href="/home">Explore Endpoints</a>
-    </div>
-    <div class="url-demo">
-      <span class="url-get">GET</span>
-      <span class="url-t">
-        <span class="uh">https://your-domain.com</span><span class="up">/api/anime/waifu</span><span class="uv">?apikey=YOUR_KEY</span>
-      </span>
-    </div>
-  </div>
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-section">Categories</div>
+    <button class="sb-btn" id="sb-ai"         onclick="show('ai')">        🤖 AI & Chat        <span class="sb-cnt">21</span></button>
+    <button class="sb-btn" id="sb-downloader" onclick="show('downloader')">⬇️ Downloaders      <span class="sb-cnt">10</span></button>
+    <button class="sb-btn" id="sb-tools"      onclick="show('tools')">     🛠️ Dev Tools        <span class="sb-cnt">15</span></button>
+    <button class="sb-btn" id="sb-anime"      onclick="show('anime')">     🎌 Anime            <span class="sb-cnt">10</span></button>
+    <button class="sb-btn" id="sb-search"     onclick="show('search')">    🔍 Search           <span class="sb-cnt">10</span></button>
+    <button class="sb-btn" id="sb-sports"     onclick="show('sports')">    ⚽ Sports           <span class="sb-cnt">8</span></button>
+    <button class="sb-btn" id="sb-stalker"    onclick="show('stalker')">   🕵️ Stalker          <span class="sb-cnt">7</span></button>
+    <button class="sb-btn" id="sb-checker"    onclick="show('checker')">   ✅ Checker          <span class="sb-cnt">5</span></button>
+    <button class="sb-btn" id="sb-tempgen"    onclick="show('tempgen')">   📧 TempGen          <span class="sb-cnt">7</span></button>
+    <button class="sb-btn" id="sb-shortener"  onclick="show('shortener')"> 🔗 Shortener        <span class="sb-cnt">4</span></button>
+    <button class="sb-btn" id="sb-fun"        onclick="show('fun')">       😂 Fun              <span class="sb-cnt">29</span></button>
+    <div class="sb-section" style="margin-top:1.25rem">Account</div>
+    <a class="sb-btn" href="/dashboard.html">👤 My Dashboard</a>
+  </aside>
 
-  <!-- LIVE STATS -->
-  <div style="max-width:860px;margin:0 auto;padding:0 1.5rem">
-    <div class="live-stats">
-      <div class="ls-cell"><div class="ls-v" id="st-uptime">—</div><div class="ls-l">Server Uptime</div></div>
-      <div class="ls-cell"><div class="ls-v" id="st-mem">—</div><div class="ls-l">Memory Usage</div></div>
-      <div class="ls-cell"><div class="ls-v" id="st-eps">35+</div><div class="ls-l">Endpoints</div></div>
-      <div class="ls-cell">
-        <div class="ls-v ls-online"><span class="ls-dot"></span><span id="st-status">Online</span></div>
-        <div class="ls-l">Status</div>
+  <!-- CONTENT -->
+  <div class="content" id="content">
+    <!-- groups injected by JS -->
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─ helpers ────────────────────────────────────────────────────────────────
+let _tt;
+const toast=m=>{const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2500);};
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const hl=j=>j.replace(/("(?:[^"\\]|\\.)*")\s*:/g,'<span class="jk">$1</span>:').replace(/:\s*("(?:[^"\\]|\\.)*")/g,': <span class="jv">$1</span>').replace(/:\s*(true|false|null)/g,': <span class="jb">$1</span>').replace(/:\s*(-?\d+\.?\d*)/g,': <span class="jn">$1</span>');
+
+// ─ toggle endpoint ────────────────────────────────────────────────────────
+function tog(id){const b=document.getElementById(id+'-b'),c=document.getElementById(id+'-c');b?.classList.toggle('open');c?.classList.toggle('open');}
+
+// ─ code tabs ─────────────────────────────────────────────────────────────
+function stab(id,l){['curl','js','py'].forEach(x=>{document.getElementById(id+'-t-'+x)?.classList.toggle('on',x===l);document.getElementById(id+'-p-'+x)?.classList.toggle('on',x===l);});}
+
+// ─ fire endpoint ─────────────────────────────────────────────────────────
+async function fire(id,method,path,fields){
+  const btn=document.getElementById(id+'-btn'),spin=document.getElementById(id+'-spin'),out=document.getElementById(id+'-out'),stat=document.getElementById(id+'-stat');
+  spin.style.display='inline-block';btn.disabled=true;out.classList.remove('on');if(stat)stat.innerHTML='';
+  const p=new URLSearchParams();
+  fields.forEach(n=>{const el=document.getElementById(id+'-f-'+n);if(el?.value)p.set(n,el.value);});
+  const url=path+'?'+p,t0=Date.now();
+  try{
+    const r=await fetch(url,{method});const ms=Date.now()-t0;const d=await r.json();
+    if(stat)stat.innerHTML=`<span class="${r.ok?'ok':'er'}">● ${r.status}</span><span class="ms">${ms}ms</span>`;
+    out.innerHTML=hl(JSON.stringify(d,null,2));out.classList.add('on');
+  }catch(ex){if(stat)stat.innerHTML='<span class="er">● Error</span>';out.innerHTML=esc('{"error":"'+ex.message+'"}');out.classList.add('on');}
+  spin.style.display='none';btn.disabled=false;
+}
+
+// ─ build one card ─────────────────────────────────────────────────────────
+function card(ep,id){
+  const rows=ep.p.map(p=>`<tr><td><span class="pn">${esc(p.n)}</span><span class="${p.r?'req':'opt'}">${p.r?'required':'optional'}</span></td><td><span class="pt">${esc(p.t)}</span></td><td style="color:var(--tx2);font-size:.74rem">${esc(p.d)}</td></tr>`).join('');
+  const flds=ep.f.map(([n,v])=>`<input class="tf" id="${id}-f-${esc(n)}" placeholder="${esc(n)}" value="${esc(v)}"/>`).join('');
+  const base=location.origin;
+  const qs=ep.f.filter(([,v])=>v).map(([n,v])=>`${n}=${encodeURIComponent(v)}`).join('&');
+  const full=`${base}${ep.path}?${qs}`;
+  const curl=`curl "${full}"`;
+  const js=`const axios = require('axios');\n\nconst { data } = await axios.get('${full}');\nconsole.log(data.result);`;
+  const py=`import requests\nr = requests.get('${base}${ep.path}',\n    params={\n${ep.f.map(([n,v])=>`        '${n}': '${v}'`).join(',\n')}\n    })\nprint(r.json()['result'])`;
+  const fns=ep.f.map(([n])=>`'${n}'`).join(',');
+  return`<div class="ep">
+  <div class="ep-hdr" onclick="tog('${id}')">
+    <span class="badge ${ep.m.toLowerCase()}">${ep.m}</span>
+    <span class="ep-path">${esc(ep.path)}</span>
+    <span class="ep-label">${esc(ep.d)}</span>
+    <span class="chv" id="${id}-c">▼</span>
+  </div>
+  <div class="ep-body" id="${id}-b">
+    <div class="ep-inner">
+      <table class="ptbl"><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead><tbody>${rows}</tbody></table>
+      <div class="cw">
+        <div class="ct">
+          <button class="ctab on" id="${id}-t-curl" onclick="stab('${id}','curl')">cURL</button>
+          <button class="ctab" id="${id}-t-js"   onclick="stab('${id}','js')">JavaScript</button>
+          <button class="ctab" id="${id}-t-py"   onclick="stab('${id}','py')">Python</button>
+        </div>
+        <div class="cpanel on" id="${id}-p-curl">${esc(curl)}</div>
+        <div class="cpanel"    id="${id}-p-js">${esc(js)}</div>
+        <div class="cpanel"    id="${id}-p-py">${esc(py)}</div>
+      </div>
+      <div class="try">
+        <div class="try-hdr"><span class="try-lbl">⚡ Try it live</span><span class="try-st" id="${id}-stat"></span></div>
+        <div class="try-body">
+          <div class="tfields">${flds}</div>
+          <button class="tbtn" id="${id}-btn" onclick="fire('${id}','${ep.m}','${esc(ep.path)}',[${fns}])">Send <div class="spin" id="${id}-spin"></div></button>
+          <div class="resp" id="${id}-out"></div>
+        </div>
       </div>
     </div>
   </div>
-
-  <!-- CATEGORIES -->
-  <div class="section">
-    <div class="sec-tag">API Categories</div>
-    <h2 class="sec-h">Everything in one place</h2>
-    <p class="sec-p">Six powerful categories, one API key, free forever.</p>
-    <div class="cat-grid">
-      <a class="cat-card" href="/downloader">
-        <div class="cat-icon">⬇️</div>
-        <div class="cat-name">Downloaders</div>
-        <div class="cat-desc">YouTube MP3/MP4, TikTok without watermark, Instagram, Twitter/X and Facebook videos.</div>
-        <div class="cat-footer"><span class="cat-badge">6 endpoints</span><span class="cat-arr">→</span></div>
-      </a>
-      <a class="cat-card" href="/tools">
-        <div class="cat-icon">🛠️</div>
-        <div class="cat-name">Dev Tools</div>
-        <div class="cat-desc">QR code, URL shortener, IP geolocation, password generator, Base64, UUID, Lorem Ipsum.</div>
-        <div class="cat-footer"><span class="cat-badge">8 endpoints</span><span class="cat-arr">→</span></div>
-      </a>
-      <a class="cat-card" href="/anime">
-        <div class="cat-icon">🎌</div>
-        <div class="cat-name">Anime</div>
-        <div class="cat-desc">waifu.pics images, MyAnimeList search, top lists, anime info, quotes and fun facts.</div>
-        <div class="cat-footer"><span class="cat-badge">8 endpoints</span><span class="cat-arr">→</span></div>
-      </a>
-      <a class="cat-card" href="/search">
-        <div class="cat-icon">🔍</div>
-        <div class="cat-name">Search</div>
-        <div class="cat-desc">Wikipedia summary &amp; search, NPM packages, GitHub users &amp; repos, dictionary, lyrics.</div>
-        <div class="cat-footer"><span class="cat-badge">6 endpoints</span><span class="cat-arr">→</span></div>
-      </a>
-      <a class="cat-card" href="/sports">
-        <div class="cat-icon">⚽</div>
-        <div class="cat-name">Sports</div>
-        <div class="cat-desc">Live football scores, team search, standings for Premier League, La Liga, Bundesliga &amp; more.</div>
-        <div class="cat-footer"><span class="cat-badge">4 endpoints</span><span class="cat-arr">→</span></div>
-      </a>
-      <a class="cat-card" href="/fun">
-        <div class="cat-icon">😂</div>
-        <div class="cat-name">Fun</div>
-        <div class="cat-desc">Jokes, random memes, inspirational quotes, useless facts and trivia questions.</div>
-        <div class="cat-footer"><span class="cat-badge">5 endpoints</span><span class="cat-arr">→</span></div>
-      </a>
-    </div>
-  </div>
-
-  <!-- QUICK START -->
-  <div class="section" style="padding-top:0">
-    <div class="sec-tag">Quick Start</div>
-    <h2 class="sec-h">Up and running in 60 seconds</h2>
-    <div class="qs-grid">
-      <div class="qs-card"><div class="qs-num">01</div><div class="qs-t">Create account</div><div class="qs-d">Register free and get your personal API key instantly.</div><div class="qs-code">POST /auth/register</div></div>
-      <div class="qs-card"><div class="qs-num">02</div><div class="qs-t">Pick an endpoint</div><div class="qs-d">Browse 35+ endpoints across 6 categories.</div><div class="qs-code">GET /api/anime/waifu</div></div>
-      <div class="qs-card"><div class="qs-num">03</div><div class="qs-t">Add your key</div><div class="qs-d">Append <span class="code-inline">?apikey=YOUR_KEY</span> to every request.</div><div class="qs-code">?apikey=crazy_xxx_...</div></div>
-      <div class="qs-card"><div class="qs-num">04</div><div class="qs-t">Deploy anywhere</div><div class="qs-d">Clone, npm install, configure Supabase, run on Railway/Render/VPS.</div><div class="qs-code">npm start → :3000</div></div>
-    </div>
-  </div>
-
-  <footer class="site-footer">
-    <div class="footer-logo">CrazyApi</div>
-    <p class="footer-p">Free Multi-Purpose REST API &nbsp;·&nbsp; Node.js + Express + Supabase</p>
-    <p class="footer-p" style="margin-top:.3rem;font-size:.73rem">© 2025 CrazyApi &nbsp;·&nbsp; <a href="/contact" style="color:var(--accent2)">Contact</a></p>
-  </footer>
-</div>
-
-<script src="/assets/app.js"></script>
-<script>
-setNavActive('');
-// Live stats
-async function loadStats() {
-  try {
-    const d = await fetch('/api/stats').then(r=>r.json());
-    document.getElementById('st-uptime').textContent = d.uptime_human || '—';
-    document.getElementById('st-mem').textContent    = (d.memory_mb || '—') + ' MB';
-    document.getElementById('st-status').textContent = d.online ? 'Online' : 'Offline';
-  } catch {}
+</div>`;
 }
-loadStats();
-setInterval(loadStats, 10000);
+
+// ─ build group panel ──────────────────────────────────────────────────────
+function buildGroup(gid){
+  const cat=CATS[gid];
+  let html=`<div class="grp" id="grp-${gid}">
+<div class="grp-hdr">
+  <div class="grp-title">${cat.icon} ${cat.label}</div>
+  <div class="grp-desc">${cat.desc}</div>
+</div>`;
+  cat.groups.forEach(g=>{
+    html+=`<div class="sub-title">${g.title}</div>`;
+    g.eps.forEach((ep,i)=>{ html+=card(ep,`${gid}-${g.id}-${i}`); });
+  });
+  return html+'</div>';
+}
+
+// ─ show group ─────────────────────────────────────────────────────────────
+const built=new Set();
+function show(gid){
+  document.querySelectorAll('.grp').forEach(g=>g.classList.remove('on'));
+  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('on'));
+  if(!built.has(gid)){
+    document.getElementById('content').insertAdjacentHTML('beforeend',buildGroup(gid));
+    built.add(gid);
+  }
+  document.getElementById('grp-'+gid).classList.add('on');
+  document.getElementById('sb-'+gid)?.classList.add('on');
+  document.getElementById('content').scrollTo(0,0);
+}
+
+// ─ DEFINITIONS ────────────────────────────────────────────────────────────
+const P=(n,t,r,d)=>({n,t,r,d});
+const E=(m,path,d,p,f)=>({m,path,d,p,f});
+
+const CATS={
+ai:{label:'AI & Chat',icon:'🤖',desc:'GPT-4o, Gemini, DeepSeek, Llama, Mistral, Flux image generation, translate, code, story, bio and more. Powered by Pollinations.ai (free, no extra key needed).',groups:[
+  {id:'chat',title:'Chat Models',eps:[
+    E('GET','/api/ai/ai','AI Chat',[P('apikey','string',true,'Your API key'),P('q','string',true,'Your message')],[['apikey','your_key'],['q','What is the capital of France?']]),
+    E('GET','/api/ai/gpt4','GPT-4o',[P('apikey','string',true,'Your API key'),P('q','string',true,'Your message')],[['apikey','your_key'],['q','Explain quantum computing simply']]),
+    E('GET','/api/ai/gpt4mini','GPT-4o Mini',[P('apikey','string',true,'Your API key'),P('q','string',true,'Your message')],[['apikey','your_key'],['q','Tell me a fun fact']]),
+    E('GET','/api/ai/gemini','Google Gemini',[P('apikey','string',true,'Your API key'),P('q','string',true,'Your message')],[['apikey','your_key'],['q','What is machine learning?']]),
+    E('GET','/api/ai/deepseek','DeepSeek AI',[P('apikey','string',true,'Your API key'),P('q','string',true,'Your message')],[['apikey','your_key'],['q','Write a short poem about the ocean']]),
+    E('GET','/api/ai/llama','LLaMA',[P('apikey','string',true,'Your API key'),P('q','string',true,'Your message')],[['apikey','your_key'],['q','How does photosynthesis work?']]),
+    E('GET','/api/ai/mistral','Mistral AI',[P('apikey','string',true,'Your API key'),P('q','string',true,'Your message')],[['apikey','your_key'],['q','Give me 3 productivity tips']]),
+    E('GET','/api/ai/custom','Custom AI (system prompt)',[P('apikey','string',true,'Your API key'),P('q','string',true,'User message'),P('prompt','string',false,'System prompt (default: helpful assistant)')],[['apikey','your_key'],['q','Ahoy!'],['prompt','You are a pirate. Always respond in pirate speak.']]),
+    E('GET','/api/ai/muslim','Islamic AI',[P('apikey','string',true,'Your API key'),P('q','string',true,'Your Islamic question')],[['apikey','your_key'],['q','What does Islam say about patience?']]),
+  ]},
+  {id:'img',title:'Image Generation',eps:[
+    E('GET','/api/ai/imagine','AI Image (any model)',[P('apikey','string',true,'Your API key'),P('prompt','string',true,'Image description'),P('model','string',false,'flux / flux-realism (default: flux)'),P('width','number',false,'Width px (default 1024)'),P('height','number',false,'Height px (default 1024)')],[['apikey','your_key'],['prompt','a beautiful sunset over mountains, digital art'],['model','flux']]),
+    E('GET','/api/ai/flux','Flux Image',[P('apikey','string',true,'Your API key'),P('prompt','string',true,'Image description'),P('ratio','string',false,'1:1 / 16:9 / 9:16 / 4:3 (default 1:1)')],[['apikey','your_key'],['prompt','futuristic city at night, neon lights'],['ratio','16:9']]),
+    E('GET','/api/ai/sora','Sora Image',[P('apikey','string',true,'Your API key'),P('prompt','string',true,'Image description')],[['apikey','your_key'],['prompt','a cute cat wearing sunglasses on a beach']]),
+    E('GET','/api/ai/deepai','Deep AI Image',[P('apikey','string',true,'Your API key'),P('prompt','string',true,'Image description')],[['apikey','your_key'],['prompt','hyperrealistic portrait of a warrior in armor']]),
+  ]},
+  {id:'util',title:'AI Utilities',eps:[
+    E('GET','/api/ai/translate','Translate text',[P('apikey','string',true,'Your API key'),P('text','string',true,'Text to translate'),P('to','string',false,'Target language (default: english)'),P('from','string',false,'Source language (default: auto)')],[['apikey','your_key'],['text','Bonjour le monde'],['to','english']]),
+    E('GET','/api/ai/summarize','Summarize text',[P('apikey','string',true,'Your API key'),P('text','string',true,'Text to summarize')],[['apikey','your_key'],['text','Artificial intelligence (AI) is intelligence demonstrated by machines. Unlike natural intelligence displayed by animals, AI is generally seen as a branch of computer science...']]),
+    E('GET','/api/ai/roast','Roast Generator',[P('apikey','string',true,'Your API key'),P('name','string',false,'Name to roast (default: someone)'),P('language','string',false,'Language (default: english)')],[['apikey','your_key'],['name','Kevin']]),
+    E('GET','/api/ai/code','Code Generator',[P('apikey','string',true,'Your API key'),P('prompt','string',true,'What to code'),P('language','string',false,'Programming language (default: javascript)')],[['apikey','your_key'],['prompt','a function that sorts an array of objects by a key'],['language','python']]),
+    E('GET','/api/ai/caption','Social Media Caption',[P('apikey','string',true,'Your API key'),P('topic','string',true,'Caption topic'),P('platform','string',false,'instagram/twitter/tiktok'),P('tone','string',false,'casual/professional/funny')],[['apikey','your_key'],['topic','beach vacation selfie'],['platform','instagram'],['tone','casual']]),
+    E('GET','/api/ai/story','Story Generator',[P('apikey','string',true,'Your API key'),P('prompt','string',true,'Story idea'),P('genre','string',false,'fiction/mystery/romance/horror (default: fiction)'),P('length','string',false,'short/medium/long (default: short)')],[['apikey','your_key'],['prompt','a detective in Tokyo finds a mysterious letter'],['genre','mystery'],['length','short']]),
+    E('GET','/api/ai/bio','Bio Writer',[P('apikey','string',true,'Your API key'),P('name','string',true,'Person name'),P('profession','string',true,'Profession'),P('style','string',false,'professional/casual/funny (default: professional)')],[['apikey','your_key'],['name','Alex'],['profession','full-stack developer'],['style','professional']]),
+    E('GET','/api/ai/lyrics2song','Song Lyrics Generator',[P('apikey','string',true,'Your API key'),P('title','string',true,'Song title'),P('genre','string',false,'pop/hiphop/rock/rnb/afrobeat'),P('artist','string',false,'Style of which artist')],[['apikey','your_key'],['title','Midnight Dreams'],['genre','pop']]),
+  ]},
+]},
+
+downloader:{label:'Downloaders',icon:'⬇️',desc:'Download media from YouTube, TikTok, Instagram, Twitter/X, Facebook, Pinterest, SoundCloud and Vimeo. Uses cobalt.tools under the hood.',groups:[
+  {id:'yt',title:'YouTube',eps:[
+    E('GET','/api/downloader/ytmp3','YouTube → MP3 audio',[P('apikey','string',true,'Your API key'),P('url','string',true,'YouTube video URL')],[['apikey','your_key'],['url','https://youtube.com/watch?v=dQw4w9WgXcQ']]),
+    E('GET','/api/downloader/ytmp4','YouTube → MP4 video',[P('apikey','string',true,'Your API key'),P('url','string',true,'YouTube video URL'),P('quality','string',false,'144/360/480/720/1080 (default: 720)')],[['apikey','your_key'],['url','https://youtube.com/watch?v=dQw4w9WgXcQ'],['quality','720']]),
+    E('GET','/api/downloader/ytinfo','YouTube video info',[P('apikey','string',true,'Your API key'),P('url','string',true,'YouTube video URL')],[['apikey','your_key'],['url','https://youtube.com/watch?v=dQw4w9WgXcQ']]),
+  ]},
+  {id:'social',title:'Social Media',eps:[
+    E('GET','/api/downloader/tiktok','TikTok (no watermark)',[P('apikey','string',true,'Your API key'),P('url','string',true,'TikTok video URL')],[['apikey','your_key'],['url','']]),
+    E('GET','/api/downloader/instagram','Instagram photo/video',[P('apikey','string',true,'Your API key'),P('url','string',true,'Instagram post URL (must be public)')],[['apikey','your_key'],['url','']]),
+    E('GET','/api/downloader/twitter','Twitter/X media',[P('apikey','string',true,'Your API key'),P('url','string',true,'Twitter/X post URL')],[['apikey','your_key'],['url','']]),
+    E('GET','/api/downloader/facebook','Facebook video',[P('apikey','string',true,'Your API key'),P('url','string',true,'Facebook video URL (must be public)')],[['apikey','your_key'],['url','']]),
+    E('GET','/api/downloader/pinterest','Pinterest media',[P('apikey','string',true,'Your API key'),P('url','string',true,'Pinterest pin URL')],[['apikey','your_key'],['url','']]),
+  ]},
+  {id:'audio',title:'Audio & Other',eps:[
+    E('GET','/api/downloader/soundcloud','SoundCloud → MP3',[P('apikey','string',true,'Your API key'),P('url','string',true,'SoundCloud track URL')],[['apikey','your_key'],['url','']]),
+    E('GET','/api/downloader/vimeo','Vimeo video',[P('apikey','string',true,'Your API key'),P('url','string',true,'Vimeo video URL')],[['apikey','your_key'],['url','']]),
+  ]},
+]},
+
+tools:{label:'Dev Tools',icon:'🛠️',desc:'QR codes, URL shortener, IP geolocation, passwords, hashing, Base64, UUID, DNS lookup, color info, timezone and more.',groups:[
+  {id:'gen',title:'Generators',eps:[
+    E('GET','/api/tools/qrcode','QR Code (PNG base64 or SVG)',[P('apikey','string',true,'Your API key'),P('text','string',true,'Text or URL to encode'),P('size','number',false,'Size in pixels (default 300, max 1000)'),P('color','string',false,'Hex dark color without # (default 000000)'),P('bg','string',false,'Hex background color (default ffffff)'),P('format','string',false,'json (base64) or svg')],[['apikey','your_key'],['text','https://crazyapi.dev'],['size','300']]),
+    E('GET','/api/tools/password','Password Generator',[P('apikey','string',true,'Your API key'),P('length','number',false,'Length 4-256 (default 16)'),P('symbols','boolean',false,'Include symbols: true/false (default false)'),P('uppercase','boolean',false,'Include uppercase (default true)'),P('numbers','boolean',false,'Include numbers (default true)')],[['apikey','your_key'],['length','20'],['symbols','true']]),
+    E('GET','/api/tools/uuid','UUID v4 Generator',[P('apikey','string',true,'Your API key'),P('count','number',false,'How many UUIDs to generate 1-50 (default 1)')],[['apikey','your_key'],['count','5']]),
+    E('GET','/api/tools/lorem','Lorem Ipsum Generator',[P('apikey','string',true,'Your API key'),P('paragraphs','number',false,'Number of paragraphs 1-10 (default 3)')],[['apikey','your_key'],['paragraphs','2']]),
+    E('GET','/api/tools/random','Random Number Generator',[P('apikey','string',true,'Your API key'),P('min','number',false,'Minimum value (default 1)'),P('max','number',false,'Maximum value (default 100)'),P('count','number',false,'How many numbers (default 1, max 100)')],[['apikey','your_key'],['min','1'],['max','1000'],['count','5']]),
+  ]},
+  {id:'lookup',title:'Lookup & Info',eps:[
+    E('GET','/api/tools/ip','IP Geolocation',[P('apikey','string',true,'Your API key'),P('ip','string',false,'IP address to look up (default: your IP)')],[['apikey','your_key'],['ip','8.8.8.8']]),
+    E('GET','/api/tools/dns','DNS Lookup',[P('apikey','string',true,'Your API key'),P('domain','string',true,'Domain name to look up'),P('type','string',false,'Record type: A/AAAA/MX/TXT/NS/CNAME (default A)')],[['apikey','your_key'],['domain','google.com'],['type','A']]),
+    E('GET','/api/tools/color','Color Info (RGB, HSL, name)',[P('apikey','string',true,'Your API key'),P('hex','string',true,'Hex color code without #')],[['apikey','your_key'],['hex','ff5733']]),
+    E('GET','/api/tools/timezone','Timezone Info',[P('apikey','string',true,'Your API key'),P('timezone','string',false,'IANA timezone name (default UTC)')],[['apikey','your_key'],['timezone','America/New_York']]),
+    E('GET','/api/tools/screenshot','Website Screenshot URL',[P('apikey','string',true,'Your API key'),P('url','string',true,'Website URL to screenshot'),P('width','number',false,'Width px (default 1280)'),P('height','number',false,'Height px (default 720)')],[['apikey','your_key'],['url','https://example.com']]),
+  ]},
+  {id:'convert',title,'Encoding & Conversion',eps:[
+    E('GET','/api/tools/shorten','URL Shortener (TinyURL)',[P('apikey','string',true,'Your API key'),P('url','string',true,'Long URL to shorten')],[['apikey','your_key'],['url','https://example.com/very/long/url?with=many&query=params']]),
+    E('GET','/api/tools/base64','Base64 Encode / Decode',[P('apikey','string',true,'Your API key'),P('text','string',true,'Text to encode or decode'),P('action','string',false,'encode or decode (default encode)')],[['apikey','your_key'],['text','Hello, World!'],['action','encode']]),
+    E('GET','/api/tools/hash','Hash Generator',[P('apikey','string',true,'Your API key'),P('text','string',true,'Text to hash'),P('algorithm','string',false,'md5 / sha1 / sha256 / sha512 (default sha256)')],[['apikey','your_key'],['text','Hello World'],['algorithm','sha256']]),
+    E('GET','/api/tools/textcase','Text Case Converter',[P('apikey','string',true,'Your API key'),P('text','string',true,'Input text'),P('to','string',false,'upper / lower / title / camel / snake / kebab / reverse')],[['apikey','your_key'],['text','hello world example text'],['to','camel']]),
+  ]},
+]},
+
+anime:{label:'Anime',icon:'🎌',desc:'Random anime images via waifu.pics (30+ SFW categories) and full MyAnimeList data via Jikan API — search, top lists, detailed info, quotes and facts.',groups:[
+  {id:'img',title:'Images (waifu.pics)',eps:[
+    E('GET','/api/anime/waifu','Random waifu image',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/anime/neko','Random neko image',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/anime/random','Random image by category',[P('apikey','string',true,'Your API key'),P('category','string',false,'waifu/neko/hug/kiss/pat/cry/bonk/dance/wave/smile/blush/... (see available_categories in response)')],[['apikey','your_key'],['category','hug']]),
+    E('GET','/api/anime/many','Batch — 30 images at once',[P('apikey','string',true,'Your API key'),P('category','string',false,'Any SFW category (default waifu)')],[['apikey','your_key'],['category','waifu']]),
+    E('GET','/api/anime/husbando','Random husbando/maid image',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+  ]},
+  {id:'mal',title:'MyAnimeList Data (Jikan)',eps:[
+    E('GET','/api/anime/search','Search anime by name',[P('apikey','string',true,'Your API key'),P('q','string',true,'Anime name to search'),P('limit','number',false,'Results 1-20 (default 8)'),P('type','string',false,'tv / movie / ova / ona / special'),P('status','string',false,'airing / complete / upcoming')],[['apikey','your_key'],['q','demon slayer'],['limit','5']]),
+    E('GET','/api/anime/top','Top anime list',[P('apikey','string',true,'Your API key'),P('type','string',false,'tv / movie / ova (default tv)'),P('filter','string',false,'bypopularity / favorite / airing / upcoming'),P('limit','number',false,'1-25 (default 10)')],[['apikey','your_key'],['type','tv'],['limit','10']]),
+    E('GET','/api/anime/info','Anime full details by MAL ID',[P('apikey','string',true,'Your API key'),P('id','number',true,'MyAnimeList ID — e.g. 21=One Piece, 16498=AoT, 38000=Demon Slayer')],[['apikey','your_key'],['id','21']]),
+    E('GET','/api/anime/quote','Random anime quote',[P('apikey','string',true,'Your API key'),P('anime','string',false,'Filter by specific anime title')],[['apikey','your_key']]),
+    E('GET','/api/anime/fact','Random anime fact',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+  ]},
+]},
+
+search:{label:'Search',icon:'🔍',desc:'Wikipedia, NPM packages, GitHub repos/users, English dictionary, song lyrics, movie info and books.',groups:[
+  {id:'wiki',title:'Wikipedia',eps:[
+    E('GET','/api/search/wiki','Wikipedia article summary',[P('apikey','string',true,'Your API key'),P('q','string',true,'Article title to summarize'),P('lang','string',false,'Language code (default en) — fr/es/de/...')],[['apikey','your_key'],['q','Artificial intelligence'],['lang','en']]),
+    E('GET','/api/search/wikipedia','Wikipedia search results',[P('apikey','string',true,'Your API key'),P('q','string',true,'Search query'),P('lang','string',false,'Language code (default en)'),P('limit','number',false,'Number of results (default 8)')],[['apikey','your_key'],['q','space exploration history']]),
+  ]},
+  {id:'dev',title:'Developer Resources',eps:[
+    E('GET','/api/search/npm','NPM package search',[P('apikey','string',true,'Your API key'),P('q','string',true,'Package name or keyword to search'),P('limit','number',false,'Results (default 8, max 20)')],[['apikey','your_key'],['q','express']]),
+    E('GET','/api/search/github','GitHub repos or user',[P('apikey','string',true,'Your API key'),P('q','string',true,'Search query or username'),P('type','string',false,'repos or user (default repos)'),P('limit','number',false,'Results (default 8)')],[['apikey','your_key'],['q','torvalds'],['type','user']]),
+    E('GET','/api/search/books','Books search (OpenLibrary)',[P('apikey','string',true,'Your API key'),P('q','string',true,'Book title, author or topic'),P('limit','number',false,'Results (default 8)')],[['apikey','your_key'],['q','clean code Robert Martin']]),
+  ]},
+  {id:'media',title:'Language & Media',eps:[
+    E('GET','/api/search/dictionary','English dictionary',[P('apikey','string',true,'Your API key'),P('word','string',true,'English word to look up')],[['apikey','your_key'],['word','serendipity']]),
+    E('GET','/api/search/lyrics','Song lyrics',[P('apikey','string',true,'Your API key'),P('artist','string',true,'Artist name'),P('title','string',true,'Song title')],[['apikey','your_key'],['artist','Eminem'],['title','Lose Yourself']]),
+    E('GET','/api/search/movies','Movie search (OMDb)',[P('apikey','string',true,'Your API key'),P('q','string',true,'Movie title to search')],[['apikey','your_key'],['q','Inception']]),
+    E('GET','/api/search/movie','Movie details by title or IMDb ID',[P('apikey','string',true,'Your API key'),P('title','string',false,'Movie title'),P('id','string',false,'IMDb ID (e.g. tt1375666 for Inception)')],[['apikey','your_key'],['title','The Dark Knight']]),
+  ]},
+]},
+
+sports:{label:'Sports',icon:'⚽',desc:'Live football scores, team search, standings for 11 leagues, upcoming fixtures, player search and event details — all via TheSportsDB.',groups:[
+  {id:'football',title:'Football (Soccer)',eps:[
+    E('GET','/api/sports/football/live','Live and recent match scores',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/sports/football/team','Search football team',[P('apikey','string',true,'Your API key'),P('q','string',true,'Team name to search')],[['apikey','your_key'],['q','Arsenal']]),
+    E('GET','/api/sports/football/standings','League standings table',[P('apikey','string',true,'Your API key'),P('league','string',false,'premier_league / la_liga / bundesliga / serie_a / ligue_1 / champions_league / mls / eredivisie / primeira_liga / ligue2 / championship'),P('season','string',false,'Season e.g. 2023-2024 (default 2023-2024)')],[['apikey','your_key'],['league','premier_league'],['season','2023-2024']]),
+    E('GET','/api/sports/football/results','Team last 5 results',[P('apikey','string',true,'Your API key'),P('team_id','string',true,'Team numeric ID — get from /football/team')],[['apikey','your_key'],['team_id','133604']]),
+    E('GET','/api/sports/football/next','Team next upcoming fixtures',[P('apikey','string',true,'Your API key'),P('team_id','string',true,'Team numeric ID — get from /football/team')],[['apikey','your_key'],['team_id','133604']]),
+    E('GET','/api/sports/football/player','Search football player',[P('apikey','string',true,'Your API key'),P('name','string',true,'Player name')],[['apikey','your_key'],['name','Ronaldo']]),
+    E('GET','/api/sports/football/event','Match event details by ID',[P('apikey','string',true,'Your API key'),P('id','string',true,'Event ID — get from /football/live')],[['apikey','your_key'],['id','']]),
+    E('GET','/api/sports/football/search','Search match events',[P('apikey','string',true,'Your API key'),P('q','string',true,'Event name e.g. "Arsenal vs Chelsea"'),P('season','string',false,'Season (default 2023-2024)')],[['apikey','your_key'],['q','Arsenal vs Chelsea']]),
+  ]},
+]},
+
+stalker:{label:'Stalker',icon:'🕵️',desc:'Fetch publicly available info from social media profiles. GitHub, TikTok, Instagram, Twitter/X, NPM packages, IP addresses and WhatsApp channels.',groups:[
+  {id:'social',title:'Social Media Profiles',eps:[
+    E('GET','/api/stalker/github','Stalk GitHub user + top repos',[P('apikey','string',true,'Your API key'),P('username','string',true,'GitHub username')],[['apikey','your_key'],['username','torvalds']]),
+    E('GET','/api/stalker/tiktok','Stalk TikTok profile',[P('apikey','string',true,'Your API key'),P('username','string',true,'TikTok username (without @)')],[['apikey','your_key'],['username','khaby.lame']]),
+    E('GET','/api/stalker/instagram','Stalk Instagram profile (public only)',[P('apikey','string',true,'Your API key'),P('username','string',true,'Instagram username')],[['apikey','your_key'],['username','cristiano']]),
+    E('GET','/api/stalker/twitter','Stalk Twitter/X profile',[P('apikey','string',true,'Your API key'),P('username','string',true,'Twitter/X username')],[['apikey','your_key'],['username','elonmusk']]),
+    E('GET','/api/stalker/whatsapp','Stalk WhatsApp channel',[P('apikey','string',true,'Your API key'),P('url','string',true,'Full WhatsApp channel URL')],[['apikey','your_key'],['url','']]),
+  ]},
+  {id:'tech',title:'Technical',eps:[
+    E('GET','/api/stalker/npm','Stalk NPM package info',[P('apikey','string',true,'Your API key'),P('packagename','string',true,'NPM package name')],[['apikey','your_key'],['packagename','express']]),
+    E('GET','/api/stalker/ip','Stalk / geo-locate an IP',[P('apikey','string',true,'Your API key'),P('address','string',false,'IP address to look up (default: your IP)')],[['apikey','your_key'],['address','8.8.8.8']]),
+  ]},
+]},
+
+checker:{label:'Checker',icon:'✅',desc:'Validate and verify: API key status, email format, URL availability, domain existence and phone number format.',groups:[
+  {id:'all',title:'Validators',eps:[
+    E('GET','/api/checker/apikey','Check API key validity & plan',[P('apikey','string',true,'API key to check')],[['apikey','your_key']]),
+    E('GET','/api/checker/email','Validate email address format',[P('apikey','string',true,'Your API key'),P('email','string',true,'Email address to validate')],[['apikey','your_key'],['email','test@gmail.com']]),
+    E('GET','/api/checker/url','Check if URL is online',[P('apikey','string',true,'Your API key'),P('url','string',true,'Full URL to check')],[['apikey','your_key'],['url','https://google.com']]),
+    E('GET','/api/checker/domain','Check domain availability',[P('apikey','string',true,'Your API key'),P('domain','string',true,'Domain name e.g. example.com')],[['apikey','your_key'],['domain','crazyapi.dev']]),
+    E('GET','/api/checker/phone','Validate phone number format',[P('apikey','string',true,'Your API key'),P('phone','string',true,'Phone number with country code e.g. +33612345678')],[['apikey','your_key'],['phone','+33612345678']]),
+  ]},
+]},
+
+tempgen:{label:'TempGen',icon:'📧',desc:'Generate throwaway email addresses using mail.tm and guerrillamail. Read inbox, open messages, delete. Also generate temporary phone numbers.',groups:[
+  {id:'v1',title:'TempMail v1 — mail.tm',eps:[
+    E('GET','/api/tempgen/email/generate','Generate a new temporary email',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/tempgen/email/inbox','Check inbox messages',[P('apikey','string',true,'Your API key'),P('token','string',true,'JWT token from /email/generate')],[['apikey','your_key'],['token','']]),
+    E('GET','/api/tempgen/email/message','Read full message content',[P('apikey','string',true,'Your API key'),P('token','string',true,'JWT token from /email/generate'),P('id','string',true,'Message ID from inbox')],[['apikey','your_key'],['token',''],['id','']]),
+    E('GET','/api/tempgen/email/delete','Delete a message',[P('apikey','string',true,'Your API key'),P('token','string',true,'JWT token'),P('id','string',true,'Message ID to delete')],[['apikey','your_key'],['token',''],['id','']]),
+  ]},
+  {id:'v2',title:'TempMail v2 — guerrillamail',eps:[
+    E('GET','/api/tempgen/email2/generate','Generate temp email v2',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/tempgen/email2/inbox','Check inbox v2',[P('apikey','string',true,'Your API key'),P('token','string',true,'sid_token from /email2/generate')],[['apikey','your_key'],['token','']]),
+  ]},
+  {id:'sms',title:'TempPhone',eps:[
+    E('GET','/api/tempgen/phone/generate','Generate a temp phone number',[P('apikey','string',true,'Your API key'),P('country','string',false,'us / uk / fr / de / ng / ke / in / br (default us)')],[['apikey','your_key'],['country','us']]),
+  ]},
+]},
+
+shortener:{label:'Shortener',icon:'🔗',desc:'Shorten long URLs using TinyURL, is.gd or da.gd. Also expand short URLs back to their original destination.',groups:[
+  {id:'all',title:'URL Shortener & Expander',eps:[
+    E('GET','/api/shortener/shorten','Shorten with TinyURL',[P('apikey','string',true,'Your API key'),P('url','string',true,'Long URL to shorten')],[['apikey','your_key'],['url','https://example.com/this/is/a/very/long/path?with=many&query=params']]),
+    E('GET','/api/shortener/isgd','Shorten with is.gd',[P('apikey','string',true,'Your API key'),P('url','string',true,'Long URL to shorten')],[['apikey','your_key'],['url','https://example.com/another/very/long/link?param=value']]),
+    E('GET','/api/shortener/dagd','Shorten with da.gd',[P('apikey','string',true,'Your API key'),P('url','string',true,'Long URL to shorten')],[['apikey','your_key'],['url','https://example.com/yet/another/long/url/here']]),
+    E('GET','/api/shortener/expand','Expand a short URL',[P('apikey','string',true,'Your API key'),P('url','string',true,'Short URL to expand to original')],[['apikey','your_key'],['url','https://tinyurl.com/example']]),
+  ]},
+]},
+
+fun:{label:'Fun',icon:'😂',desc:'29 endpoints: jokes, memes, trivia, truth or dare, love messages, birthday wishes, shayari, holiday greetings and much more.',groups:[
+  {id:'msg',title:'Daily Messages',eps:[
+    E('GET','/api/fun/jokes','Random joke',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/advice','Random life advice',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/motivation','Motivational quote',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/compliments','Random compliment',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/love','Love message',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/flirt','Flirty message',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/pickuplines','Pick-up line',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/friendship','Friendship quote',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/goodnight','Goodnight wish',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/morning','Good morning message',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/thankyou','Thank you message',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/goodluck','Good luck message',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+  ]},
+  {id:'holiday',title:'Holidays & Occasions',eps:[
+    E('GET','/api/fun/birthday','Birthday wish',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/christmas','Christmas wish',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/newyear','New Year wish',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/halloween','Halloween wish',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/valentines','Valentine message',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/roseday','Rose Day wish 🌹',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/mothers',"Mother's Day wish",[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/fathers',"Father's Day wish",[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/girlfriend',"Girlfriend's Day message",[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/boyfriend',"Boyfriend's Day message",[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+  ]},
+  {id:'games',title:'Games & Live Content',eps:[
+    E('GET','/api/fun/truth','Truth question (truth or dare)',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/dares','Dare challenge (truth or dare)',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/trivia','Trivia question (OpenTDB)',[P('apikey','string',true,'Your API key'),P('difficulty','string',false,'easy / medium / hard (default medium)'),P('amount','number',false,'Questions 1-10 (default 1)')],[['apikey','your_key'],['difficulty','medium'],['amount','1']]),
+    E('GET','/api/fun/joke','Joke via JokeAPI (live)',[P('apikey','string',true,'Your API key'),P('category','string',false,'Any / Programming / Dark / Pun / Spooky / Christmas'),P('blacklist','string',false,'nsfw / religious / political / racist / sexist / explicit')],[['apikey','your_key'],['category','Programming']]),
+    E('GET','/api/fun/meme','Random meme from Reddit',[P('apikey','string',true,'Your API key'),P('subreddit','string',false,'Subreddit name (default: random from memes/dankmemes/ProgrammerHumor)')],[['apikey','your_key'],['subreddit','ProgrammerHumor']]),
+    E('GET','/api/fun/quote','Inspirational quote (live)',[P('apikey','string',true,'Your API key'),P('category','string',false,'Topic tag (e.g. technology, love, success)')],[['apikey','your_key']]),
+    E('GET','/api/fun/fact','Random fun fact (live)',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+  ]},
+  {id:'xtra',title:'Extra',eps:[
+    E('GET','/api/fun/shayari','Random Shayari (Urdu poetry)',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/heartbreak','Heartbreak quote',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/insults','Funny insult',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+    E('GET','/api/fun/gratitude','Gratitude message',[P('apikey','string',true,'Your API key')],[['apikey','your_key']]),
+  ]},
+]},
+};
+
+// show first group on load
+show('ai');
+
+// live stats
+async function loadStats(){
+  try{
+    const d=await fetch('/api/stats').then(r=>r.json());
+    document.getElementById('ns-up').textContent=d.uptime||'—';
+    document.getElementById('ns-mem').textContent=(d.memory_mb||'—')+' MB';
+    document.getElementById('ns-req').textContent=(d.total_requests||0).toLocaleString();
+  }catch{}
+}
+loadStats();setInterval(loadStats,10000);
 </script>
 </body>
 </html>

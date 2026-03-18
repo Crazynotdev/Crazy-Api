@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CrazyApi — Free Multi-Purpose REST API</title>
+<meta name="description" content="35+ free REST API endpoints. Downloaders, anime, search, sports, tools & more."/>
+<link rel="stylesheet" href="/assets/style.css"/>
+</head>
+<body>
+<nav id="nav">
+  <a class="nav-logo" href="/">CrazyApi</a>
+  <div class="nav-links">
+    <a class="nav-a always" href="/home"       data-page="home">Dashboard</a>
+    <a class="nav-a always" href="/downloader" data-page="downloader">Downloaders</a>
+    <a class="nav-a"        href="/tools"      data-page="tools">Tools</a>
+    <a class="nav-a"        href="/anime"      data-page="anime">Anime</a>
+    <a class="nav-a"        href="/search"     data-page="search">Search</a>
+    <a class="nav-a"        href="/sports"     data-page="sports">Sports</a>
+    <a class="nav-a"        href="/fun"        data-page="fun">Fun</a>
+    <a class="nav-a"        href="/docs"       data-page="docs">Docs</a>
+    <a class="nav-a"        href="/changelog"  data-page="changelog">Changelog</a>
+    <a class="nav-a"        href="/contact"    data-page="contact">Contact</a>
+  </div>
+  <div class="nav-right">
+    <div id="nav-auth" style="display:flex;gap:.5rem">
+      <a class="nav-btn btn-outline" href="/login">Login</a>
+      <a class="nav-btn btn-solid" href="/register">Get API Key &rarr;</a>
+    </div>
+    <div id="nav-user" style="display:none;align-items:center;gap:.5rem">
+      <a class="nav-btn btn-outline" href="/dashboard" style="display:flex;align-items:center;gap:.4rem">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block"></span>
+        <span id="nav-uname">User</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="home-wrap">
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow"><span class="live-dot"></span> v2.0 &nbsp;·&nbsp; 35+ Endpoints Live</div>
+    <h1>The <span class="g">Professional</span><br/>Free REST API</h1>
+    <p class="hero-desc">Downloaders, anime, search, sports &amp; dev tools — all through one simple API. JSON responses, API key auth, Supabase-powered accounts.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="/register">Get Free API Key &rarr;</a>
+      <a class="btn btn-secondary" href="/home">Explore Endpoints</a>
+    </div>
+    <div class="url-demo">
+      <span class="url-get">GET</span>
+      <span class="url-t">
+        <span class="uh">https://your-domain.com</span><span class="up">/api/anime/waifu</span><span class="uv">?apikey=YOUR_KEY</span>
+      </span>
+    </div>
+  </div>
+
+  <!-- LIVE STATS -->
+  <div style="max-width:860px;margin:0 auto;padding:0 1.5rem">
+    <div class="live-stats">
+      <div class="ls-cell"><div class="ls-v" id="st-uptime">—</div><div class="ls-l">Server Uptime</div></div>
+      <div class="ls-cell"><div class="ls-v" id="st-mem">—</div><div class="ls-l">Memory Usage</div></div>
+      <div class="ls-cell"><div class="ls-v" id="st-eps">35+</div><div class="ls-l">Endpoints</div></div>
+      <div class="ls-cell">
+        <div class="ls-v ls-online"><span class="ls-dot"></span><span id="st-status">Online</span></div>
+        <div class="ls-l">Status</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CATEGORIES -->
+  <div class="section">
+    <div class="sec-tag">API Categories</div>
+    <h2 class="sec-h">Everything in one place</h2>
+    <p class="sec-p">Six powerful categories, one API key, free forever.</p>
+    <div class="cat-grid">
+      <a class="cat-card" href="/downloader">
+        <div class="cat-icon">⬇️</div>
+        <div class="cat-name">Downloaders</div>
+        <div class="cat-desc">YouTube MP3/MP4, TikTok without watermark, Instagram, Twitter/X and Facebook videos.</div>
+        <div class="cat-footer"><span class="cat-badge">6 endpoints</span><span class="cat-arr">→</span></div>
+      </a>
+      <a class="cat-card" href="/tools">
+        <div class="cat-icon">🛠️</div>
+        <div class="cat-name">Dev Tools</div>
+        <div class="cat-desc">QR code, URL shortener, IP geolocation, password generator, Base64, UUID, Lorem Ipsum.</div>
+        <div class="cat-footer"><span class="cat-badge">8 endpoints</span><span class="cat-arr">→</span></div>
+      </a>
+      <a class="cat-card" href="/anime">
+        <div class="cat-icon">🎌</div>
+        <div class="cat-name">Anime</div>
+        <div class="cat-desc">waifu.pics images, MyAnimeList search, top lists, anime info, quotes and fun facts.</div>
+        <div class="cat-footer"><span class="cat-badge">8 endpoints</span><span class="cat-arr">→</span></div>
+      </a>
+      <a class="cat-card" href="/search">
+        <div class="cat-icon">🔍</div>
+        <div class="cat-name">Search</div>
+        <div class="cat-desc">Wikipedia summary &amp; search, NPM packages, GitHub users &amp; repos, dictionary, lyrics.</div>
+        <div class="cat-footer"><span class="cat-badge">6 endpoints</span><span class="cat-arr">→</span></div>
+      </a>
+      <a class="cat-card" href="/sports">
+        <div class="cat-icon">⚽</div>
+        <div class="cat-name">Sports</div>
+        <div class="cat-desc">Live football scores, team search, standings for Premier League, La Liga, Bundesliga &amp; more.</div>
+        <div class="cat-footer"><span class="cat-badge">4 endpoints</span><span class="cat-arr">→</span></div>
+      </a>
+      <a class="cat-card" href="/fun">
+        <div class="cat-icon">😂</div>
+        <div class="cat-name">Fun</div>
+        <div class="cat-desc">Jokes, random memes, inspirational quotes, useless facts and trivia questions.</div>
+        <div class="cat-footer"><span class="cat-badge">5 endpoints</span><span class="cat-arr">→</span></div>
+      </a>
+    </div>
+  </div>
+
+  <!-- QUICK START -->
+  <div class="section" style="padding-top:0">
+    <div class="sec-tag">Quick Start</div>
+    <h2 class="sec-h">Up and running in 60 seconds</h2>
+    <div class="qs-grid">
+      <div class="qs-card"><div class="qs-num">01</div><div class="qs-t">Create account</div><div class="qs-d">Register free and get your personal API key instantly.</div><div class="qs-code">POST /auth/register</div></div>
+      <div class="qs-card"><div class="qs-num">02</div><div class="qs-t">Pick an endpoint</div><div class="qs-d">Browse 35+ endpoints across 6 categories.</div><div class="qs-code">GET /api/anime/waifu</div></div>
+      <div class="qs-card"><div class="qs-num">03</div><div class="qs-t">Add your key</div><div class="qs-d">Append <span class="code-inline">?apikey=YOUR_KEY</span> to every request.</div><div class="qs-code">?apikey=crazy_xxx_...</div></div>
+      <div class="qs-card"><div class="qs-num">04</div><div class="qs-t">Deploy anywhere</div><div class="qs-d">Clone, npm install, configure Supabase, run on Railway/Render/VPS.</div><div class="qs-code">npm start → :3000</div></div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-logo">CrazyApi</div>
+    <p class="footer-p">Free Multi-Purpose REST API &nbsp;·&nbsp; Node.js + Express + Supabase</p>
+    <p class="footer-p" style="margin-top:.3rem;font-size:.73rem">© 2025 CrazyApi &nbsp;·&nbsp; <a href="/contact" style="color:var(--accent2)">Contact</a></p>
+  </footer>
+</div>
+
+<script src="/assets/app.js"></script>
+<script>
+setNavActive('');
+// Live stats
+async function loadStats() {
+  try {
+    const d = await fetch('/api/stats').then(r=>r.json());
+    document.getElementById('st-uptime').textContent = d.uptime_human || '—';
+    document.getElementById('st-mem').textContent    = (d.memory_mb || '—') + ' MB';
+    document.getElementById('st-status').textContent = d.online ? 'Online' : 'Offline';
+  } catch {}
+}
+loadStats();
+setInterval(loadStats, 10000);
+</script>
+</body>
+</html>

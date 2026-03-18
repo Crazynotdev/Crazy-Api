@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CrazyApi — Contact &amp; Pricing</title>
+<link rel="stylesheet" href="/assets/style.css"/>
+</head>
+<body>
+<nav id="nav">
+  <a class="nav-logo" href="/">CrazyApi</a>
+  <div class="nav-links">
+    <a class="nav-a always" href="/home"       data-page="home">Dashboard</a>
+    <a class="nav-a always" href="/downloader" data-page="downloader">Downloaders</a>
+    <a class="nav-a"        href="/tools"      data-page="tools">Tools</a>
+    <a class="nav-a"        href="/anime"      data-page="anime">Anime</a>
+    <a class="nav-a"        href="/search"     data-page="search">Search</a>
+    <a class="nav-a"        href="/sports"     data-page="sports">Sports</a>
+    <a class="nav-a"        href="/fun"        data-page="fun">Fun</a>
+    <a class="nav-a"        href="/docs"       data-page="docs">Docs</a>
+    <a class="nav-a"        href="/changelog"  data-page="changelog">Changelog</a>
+    <a class="nav-a active" href="/contact"    data-page="contact">Contact</a>
+  </div>
+  <div class="nav-right">
+    <div id="nav-auth" style="display:flex;gap:.5rem">
+      <a class="nav-btn btn-outline" href="/login">Login</a>
+      <a class="nav-btn btn-solid" href="/register">Get API Key &rarr;</a>
+    </div>
+    <div id="nav-user" style="display:none;align-items:center;gap:.5rem">
+      <a class="nav-btn btn-outline" href="/dashboard" style="display:flex;align-items:center;gap:.4rem">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block"></span>
+        <span id="nav-uname">User</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="contact-wrap">
+  <!-- HEADER -->
+  <div style="font-size:.68rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent2);font-family:'Geist Mono',monospace;margin-bottom:.5rem">Support</div>
+  <h1 style="font-size:2rem;font-weight:900;letter-spacing:-.75px;margin-bottom:.5rem">Contact &amp; Pricing</h1>
+  <p style="color:var(--text2);margin-bottom:2.5rem;max-width:520px;line-height:1.7">Have a question, found a bug, or want a Pro key with higher rate limits? Reach out through any channel below.</p>
+
+  <!-- CONTACT CARDS -->
+  <div class="contact-grid" style="margin-bottom:3rem">
+    <div class="contact-card">
+      <div class="cc-icon">📧</div>
+      <div class="cc-t">Email</div>
+      <div class="cc-d">For API key requests, billing questions or support issues.</div>
+      <a class="cc-link" href="mailto:contact@crazyapi.dev">contact@crazyapi.dev</a>
+    </div>
+    <div class="contact-card">
+      <div class="cc-icon">💬</div>
+      <div class="cc-t">Discord</div>
+      <div class="cc-d">Join our community, get help and report bugs in real time.</div>
+      <a class="cc-link" href="#">Join Discord Server</a>
+    </div>
+    <div class="contact-card">
+      <div class="cc-icon">🐙</div>
+      <div class="cc-t">GitHub</div>
+      <div class="cc-d">Open source. Report issues or contribute on GitHub.</div>
+      <a class="cc-link" href="https://github.com" target="_blank">github.com/crazyapi</a>
+    </div>
+    <div class="contact-card">
+      <div class="cc-icon">🐦</div>
+      <div class="cc-t">Twitter / X</div>
+      <div class="cc-d">Follow for announcements, new endpoints and updates.</div>
+      <a class="cc-link" href="#">@crazyapi_dev</a>
+    </div>
+  </div>
+
+  <!-- PRICING -->
+  <div style="font-size:.68rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent2);font-family:'Geist Mono',monospace;margin-bottom:.75rem">Pricing</div>
+  <h2 style="font-size:1.5rem;font-weight:800;letter-spacing:-.5px;margin-bottom:.4rem">Simple, Fair Pricing</h2>
+  <p style="color:var(--text2);margin-bottom:1.75rem">Start free. Upgrade only if you need higher limits.</p>
+
+  <div class="pricing-grid">
+    <!-- FREE -->
+    <div class="price-card">
+      <div class="pc-plan">Free</div>
+      <div class="pc-price">$0 <span>/ month</span></div>
+      <div class="pc-desc">Perfect for personal projects, bots and testing.</div>
+      <ul class="pc-features">
+        <li>500 requests / day</li>
+        <li>60 requests / minute</li>
+        <li>All 35+ endpoints</li>
+        <li>6 categories</li>
+        <li>JSON responses</li>
+        <li>Community support</li>
+      </ul>
+      <a href="/register"><button class="pc-btn pc-btn-outline">Get Started Free</button></a>
+    </div>
+    <!-- PRO -->
+    <div class="price-card featured">
+      <div style="position:absolute;top:-1px;right:1.5rem;background:var(--accent);color:#fff;font-size:.62rem;font-weight:700;padding:3px 10px;border-radius:0 0 6px 6px;font-family:'Geist Mono',monospace">POPULAR</div>
+      <div class="pc-plan" style="color:#fbbf24">Pro</div>
+      <div class="pc-price" style="background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Contact <span style="-webkit-text-fill-color:var(--text2)">us</span></div>
+      <div class="pc-desc">For production apps, SaaS products and high-volume usage.</div>
+      <ul class="pc-features">
+        <li>Unlimited requests / day</li>
+        <li>300 requests / minute</li>
+        <li>All 35+ endpoints</li>
+        <li>Priority support</li>
+        <li>Dedicated API key</li>
+        <li>Custom rate limits</li>
+        <li>SLA guarantee</li>
+      </ul>
+      <a href="mailto:contact@crazyapi.dev"><button class="pc-btn pc-btn-fill">Contact for Pro Key</button></a>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div style="margin-top:3rem">
+    <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:1.25rem">FAQ</h2>
+    <div style="display:flex;flex-direction:column;gap:.875rem">
+      <div style="background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+        <div style="font-weight:700;margin-bottom:.35rem">Is the Free plan really free forever?</div>
+        <div style="color:var(--text2);font-size:.875rem">Yes. The free tier has no expiration date. 500 requests/day is enough for most personal projects and bots.</div>
+      </div>
+      <div style="background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+        <div style="font-weight:700;margin-bottom:.35rem">Can I self-host CrazyApi?</div>
+        <div style="color:var(--text2);font-size:.875rem">Absolutely. The full source code is available. Clone it, configure Supabase and deploy anywhere. See the <a href="/docs#self-host" style="color:var(--accent2)">self-hosting docs</a>.</div>
+      </div>
+      <div style="background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+        <div style="font-weight:700;margin-bottom:.35rem">What happens if I hit the rate limit?</div>
+        <div style="color:var(--text2);font-size:.875rem">You'll receive a <span class="ic">429 Too Many Requests</span> response. Wait a minute and try again, or upgrade to Pro for higher limits.</div>
+      </div>
+      <div style="background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:1.25rem">
+        <div style="font-weight:700;margin-bottom:.35rem">Do you store my API requests?</div>
+        <div style="color:var(--text2);font-size:.875rem">We store only the request count per key for rate limiting. We don't log query content or results.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/app.js"></script>
+<script>setNavActive('contact');</script>
+</body>
+</html>

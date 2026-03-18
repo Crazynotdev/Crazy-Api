@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CrazyApi — Documentation</title>
+<link rel="stylesheet" href="/assets/style.css"/>
+</head>
+<body>
+<nav id="nav">
+  <a class="nav-logo" href="/">CrazyApi</a>
+  <div class="nav-links">
+    <a class="nav-a always" href="/home"       data-page="home">Dashboard</a>
+    <a class="nav-a always" href="/downloader" data-page="downloader">Downloaders</a>
+    <a class="nav-a"        href="/tools"      data-page="tools">Tools</a>
+    <a class="nav-a"        href="/anime"      data-page="anime">Anime</a>
+    <a class="nav-a"        href="/search"     data-page="search">Search</a>
+    <a class="nav-a"        href="/sports"     data-page="sports">Sports</a>
+    <a class="nav-a"        href="/fun"        data-page="fun">Fun</a>
+    <a class="nav-a active" href="/docs"       data-page="docs">Docs</a>
+    <a class="nav-a"        href="/changelog"  data-page="changelog">Changelog</a>
+    <a class="nav-a"        href="/contact"    data-page="contact">Contact</a>
+  </div>
+  <div class="nav-right">
+    <div id="nav-auth" style="display:flex;gap:.5rem">
+      <a class="nav-btn btn-outline" href="/login">Login</a>
+      <a class="nav-btn btn-solid" href="/register">Get API Key &rarr;</a>
+    </div>
+    <div id="nav-user" style="display:none;align-items:center;gap:.5rem">
+      <a class="nav-btn btn-outline" href="/dashboard" style="display:flex;align-items:center;gap:.4rem">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block"></span>
+        <span id="nav-uname">User</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="docs-wrap">
+  <div style="font-size:.68rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent2);font-family:'Geist Mono',monospace;margin-bottom:.5rem">Documentation</div>
+  <h1 class="docs-h1">API Reference</h1>
+  <p class="docs-lead">Complete reference for the CrazyApi REST API. All endpoints return consistent JSON. Use your API key on every request.</p>
+
+  <div class="toc-card">
+    <div class="toc-t">Table of Contents</div>
+    <div class="toc-links">
+      <a href="#authentication">Authentication</a>
+      <a href="#base-url">Base URL</a>
+      <a href="#response-format">Response Format</a>
+      <a href="#errors">Error Codes</a>
+      <a href="#rate-limits">Rate Limits</a>
+      <a href="#examples">Code Examples</a>
+      <a href="#endpoints">Endpoint List</a>
+      <a href="#self-host">Self-Hosting</a>
+    </div>
+  </div>
+
+  <!-- AUTH -->
+  <div class="docs-sec" id="authentication">
+    <h2>Authentication</h2>
+    <p class="docs-p">Every request requires a valid <span class="ic">apikey</span> parameter. You can pass it as a query string or as the <span class="ic">X-API-Key</span> header.</p>
+    <div class="docs-code">GET /api/anime/waifu?apikey=YOUR_KEY
+
+# Or via header:
+GET /api/anime/waifu
+X-API-Key: YOUR_KEY</div>
+    <p class="docs-p"><a href="/register" style="color:var(--accent2);font-weight:600">Create a free account</a> to get your personal API key. Any non-empty string works in dev mode (when Supabase is not configured).</p>
+  </div>
+
+  <!-- BASE URL -->
+  <div class="docs-sec" id="base-url">
+    <h2>Base URL</h2>
+    <p class="docs-p">All API calls are made to your deployment URL. For local development:</p>
+    <div class="docs-code">http://localhost:3000</div>
+    <p class="docs-p">All endpoints are prefixed with <span class="ic">/api/</span> followed by the category and endpoint name.</p>
+  </div>
+
+  <!-- RESPONSE FORMAT -->
+  <div class="docs-sec" id="response-format">
+    <h2>Response Format</h2>
+    <p class="docs-p">Every endpoint returns a consistent JSON envelope:</p>
+    <div class="docs-code">// ✅ Success
+{
+  "status": true,
+  "creator": "CrazyApi",
+  "result": { ... }   // or "count", "query", etc.
+}
+
+// ❌ Error
+{
+  "status": false,
+  "creator": "CrazyApi",
+  "error": "Human-readable error message"
+}</div>
+    <p class="docs-p">The <span class="ic">result</span> field can be a string, object, array, or URL depending on the endpoint.</p>
+  </div>
+
+  <!-- ERROR CODES -->
+  <div class="docs-sec" id="errors">
+    <h2>Error Codes</h2>
+    <table class="docs-table">
+      <thead><tr><th>HTTP Status</th><th>Meaning</th><th>Common Cause</th></tr></thead>
+      <tbody>
+        <tr><td><span class="ic">200</span></td><td>OK</td><td>Request successful</td></tr>
+        <tr><td><span class="ic">400</span></td><td>Bad Request</td><td>Missing or invalid parameter</td></tr>
+        <tr><td><span class="ic">401</span></td><td>Unauthorized</td><td>Missing or invalid API key</td></tr>
+        <tr><td><span class="ic">403</span></td><td>Forbidden</td><td>API key suspended</td></tr>
+        <tr><td><span class="ic">404</span></td><td>Not Found</td><td>Endpoint does not exist</td></tr>
+        <tr><td><span class="ic">429</span></td><td>Too Many Requests</td><td>Rate limit exceeded</td></tr>
+        <tr><td><span class="ic">500</span></td><td>Server Error</td><td>Upstream API error or bug</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- RATE LIMITS -->
+  <div class="docs-sec" id="rate-limits">
+    <h2>Rate Limits</h2>
+    <p class="docs-p">Limits are enforced per API key (daily) and per IP (per minute).</p>
+    <table class="docs-table">
+      <thead><tr><th>Plan</th><th>Daily Limit</th><th>Per Minute</th><th>Price</th></tr></thead>
+      <tbody>
+        <tr><td><span style="color:var(--accent2)">Free</span></td><td>500 / day</td><td>60 / min</td><td>$0 forever</td></tr>
+        <tr><td><span style="color:#fbbf24">Pro</span></td><td>Unlimited</td><td>300 / min</td><td>Contact us</td></tr>
+      </tbody>
+    </table>
+    <p class="docs-p">When rate limited you receive a <span class="ic">429</span> response. Wait briefly and retry.</p>
+  </div>
+
+  <!-- CODE EXAMPLES -->
+  <div class="docs-sec" id="examples">
+    <h2>Code Examples</h2>
+    <p class="docs-p" style="font-weight:600;color:var(--text)">JavaScript (fetch)</p>
+    <div class="docs-code">const res  = await fetch('http://localhost:3000/api/anime/waifu?apikey=YOUR_KEY');
+const data = await res.json();
+if (data.status) console.log(data.result.url);</div>
+
+    <p class="docs-p" style="font-weight:600;color:var(--text)">JavaScript (axios)</p>
+    <div class="docs-code">const axios = require('axios');
+const { data } = await axios.get('http://localhost:3000/api/search/wiki', {
+  params: { apikey: 'YOUR_KEY', q: 'JavaScript' }
+});
+console.log(data.result.extract);</div>
+
+    <p class="docs-p" style="font-weight:600;color:var(--text)">Python</p>
+    <div class="docs-code">import requests
+
+r = requests.get('http://localhost:3000/api/fun/joke', params={
+    'apikey': 'YOUR_KEY',
+    'category': 'Programming'
+})
+print(r.json()['result'])</div>
+
+    <p class="docs-p" style="font-weight:600;color:var(--text)">cURL</p>
+    <div class="docs-code">curl "http://localhost:3000/api/tools/ip?apikey=YOUR_KEY&ip=8.8.8.8"</div>
+
+    <p class="docs-p" style="font-weight:600;color:var(--text)">PHP</p>
+    <div class="docs-code">$response = file_get_contents(
+  'http://localhost:3000/api/anime/quote?apikey=YOUR_KEY'
+);
+$data = json_decode($response, true);
+echo $data['result']['quote'];</div>
+  </div>
+
+  <!-- ENDPOINT LIST -->
+  <div class="docs-sec" id="endpoints">
+    <h2>Endpoint List</h2>
+    <p class="docs-p">Quick overview of all available endpoints. Click the category pages for full interactive docs.</p>
+
+    <p class="docs-p" style="font-weight:700;color:var(--text);margin-top:1.5rem">⬇️ Downloaders &nbsp;<a href="/downloader" style="font-size:.8rem;color:var(--accent2)">→ Full docs</a></p>
+    <div class="docs-code">GET /api/downloader/ytmp3?apikey=&url=
+GET /api/downloader/ytmp4?apikey=&url=&quality=720
+GET /api/downloader/tiktok?apikey=&url=
+GET /api/downloader/instagram?apikey=&url=
+GET /api/downloader/twitter?apikey=&url=
+GET /api/downloader/facebook?apikey=&url=</div>
+
+    <p class="docs-p" style="font-weight:700;color:var(--text);margin-top:1.5rem">🛠️ Dev Tools &nbsp;<a href="/tools" style="font-size:.8rem;color:var(--accent2)">→ Full docs</a></p>
+    <div class="docs-code">GET /api/tools/qrcode?apikey=&text=&size=300
+GET /api/tools/shorten?apikey=&url=
+GET /api/tools/ip?apikey=&ip=
+GET /api/tools/password?apikey=&length=16&symbols=false
+GET /api/tools/base64?apikey=&text=&action=encode
+GET /api/tools/uuid?apikey=&count=1
+GET /api/tools/lorem?apikey=&paragraphs=3
+GET /api/tools/screenshot?apikey=&url=</div>
+
+    <p class="docs-p" style="font-weight:700;color:var(--text);margin-top:1.5rem">🎌 Anime &nbsp;<a href="/anime" style="font-size:.8rem;color:var(--accent2)">→ Full docs</a></p>
+    <div class="docs-code">GET /api/anime/waifu?apikey=
+GET /api/anime/random?apikey=&category=neko
+GET /api/anime/many?apikey=&category=waifu
+GET /api/anime/search?apikey=&q=naruto&limit=8
+GET /api/anime/top?apikey=&type=tv&limit=10
+GET /api/anime/info?apikey=&id=21
+GET /api/anime/quote?apikey=&anime=
+GET /api/anime/fact?apikey=</div>
+
+    <p class="docs-p" style="font-weight:700;color:var(--text);margin-top:1.5rem">🔍 Search &nbsp;<a href="/search" style="font-size:.8rem;color:var(--accent2)">→ Full docs</a></p>
+    <div class="docs-code">GET /api/search/wiki?apikey=&q=&lang=en
+GET /api/search/wikipedia?apikey=&q=&limit=8
+GET /api/search/npm?apikey=&q=express
+GET /api/search/github?apikey=&q=&type=repos
+GET /api/search/dictionary?apikey=&word=
+GET /api/search/lyrics?apikey=&artist=&title=</div>
+
+    <p class="docs-p" style="font-weight:700;color:var(--text);margin-top:1.5rem">⚽ Sports &nbsp;<a href="/sports" style="font-size:.8rem;color:var(--accent2)">→ Full docs</a></p>
+    <div class="docs-code">GET /api/sports/football/live?apikey=
+GET /api/sports/football/team?apikey=&q=Arsenal
+GET /api/sports/football/standings?apikey=&league=premier_league
+GET /api/sports/football/results?apikey=&team_id=</div>
+
+    <p class="docs-p" style="font-weight:700;color:var(--text);margin-top:1.5rem">😂 Fun &nbsp;<a href="/fun" style="font-size:.8rem;color:var(--accent2)">→ Full docs</a></p>
+    <div class="docs-code">GET /api/fun/joke?apikey=&category=Programming
+GET /api/fun/meme?apikey=&subreddit=dankmemes
+GET /api/fun/quote?apikey=
+GET /api/fun/fact?apikey=
+GET /api/fun/trivia?apikey=&difficulty=medium&amount=1</div>
+  </div>
+
+  <!-- SELF HOST -->
+  <div class="docs-sec" id="self-host">
+    <h2>Self-Hosting</h2>
+    <p class="docs-p">CrazyApi is fully open-source and self-hostable. You own your data.</p>
+    <div class="docs-code"># 1. Clone & install
+git clone https://github.com/yourname/crazyapi
+cd crazyapi
+npm install
+
+# 2. Configure environment
+cp .env.example .env
+# Edit .env with your Supabase credentials
+
+# 3. Setup database
+# Paste supabase_schema.sql into your Supabase SQL Editor
+
+# 4. Start
+npm start       # production
+npm run dev     # development (nodemon)</div>
+    <p class="docs-p">Works without Supabase in dev mode — any non-empty apikey is accepted. <a href="/contact" style="color:var(--accent2)">Contact us</a> for help deploying.</p>
+  </div>
+</div>
+
+<script src="/assets/app.js"></script>
+<script>setNavActive('docs');</script>
+</body>
+</html>

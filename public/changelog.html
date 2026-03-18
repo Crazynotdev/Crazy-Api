@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CrazyApi — Changelog</title>
+<link rel="stylesheet" href="/assets/style.css"/>
+</head>
+<body>
+<nav id="nav">
+  <a class="nav-logo" href="/">CrazyApi</a>
+  <div class="nav-links">
+    <a class="nav-a always" href="/home"       data-page="home">Dashboard</a>
+    <a class="nav-a always" href="/downloader" data-page="downloader">Downloaders</a>
+    <a class="nav-a"        href="/tools"      data-page="tools">Tools</a>
+    <a class="nav-a"        href="/anime"      data-page="anime">Anime</a>
+    <a class="nav-a"        href="/search"     data-page="search">Search</a>
+    <a class="nav-a"        href="/sports"     data-page="sports">Sports</a>
+    <a class="nav-a"        href="/fun"        data-page="fun">Fun</a>
+    <a class="nav-a"        href="/docs"       data-page="docs">Docs</a>
+    <a class="nav-a active" href="/changelog"  data-page="changelog">Changelog</a>
+    <a class="nav-a"        href="/contact"    data-page="contact">Contact</a>
+  </div>
+  <div class="nav-right">
+    <div id="nav-auth" style="display:flex;gap:.5rem">
+      <a class="nav-btn btn-outline" href="/login">Login</a>
+      <a class="nav-btn btn-solid" href="/register">Get API Key &rarr;</a>
+    </div>
+    <div id="nav-user" style="display:none;align-items:center;gap:.5rem">
+      <a class="nav-btn btn-outline" href="/dashboard" style="display:flex;align-items:center;gap:.4rem">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block"></span>
+        <span id="nav-uname">User</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="changelog-wrap">
+  <div style="font-size:.68rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent2);font-family:'Geist Mono',monospace;margin-bottom:.5rem">History</div>
+  <h1 style="font-size:2rem;font-weight:900;letter-spacing:-.75px;margin-bottom:.5rem">Changelog</h1>
+  <p style="color:var(--text2);margin-bottom:3rem">All notable changes, new endpoints and fixes.</p>
+
+  <!-- v2.0.0 -->
+  <div class="cl-entry">
+    <div class="cl-dot"><div class="cl-dot-inner"></div></div>
+    <div class="cl-right">
+      <div class="cl-ver">v2.0.0</div>
+      <div class="cl-date">March 2025</div>
+      <div class="cl-title">Complete Rewrite — Professional Platform</div>
+      <ul class="cl-items">
+        <li><span class="cl-tag cl-new">NEW</span> Supabase authentication — register, login, dashboard</li>
+        <li><span class="cl-tag cl-new">NEW</span> 6 dedicated category pages with interactive docs</li>
+        <li><span class="cl-tag cl-new">NEW</span> Live "Try it" panel on every endpoint with cURL/JS/Python examples</li>
+        <li><span class="cl-tag cl-new">NEW</span> Fun category — jokes, memes, quotes, facts, trivia</li>
+        <li><span class="cl-tag cl-new">NEW</span> Search category — Wikipedia, NPM, GitHub, Dictionary, Lyrics</li>
+        <li><span class="cl-tag cl-new">NEW</span> Sports — live scores, standings for 9 leagues, team search</li>
+        <li><span class="cl-tag cl-new">NEW</span> Anime — waifu.pics + full Jikan/MAL integration</li>
+        <li><span class="cl-tag cl-new">NEW</span> Tools — UUID, Lorem Ipsum, Screenshot, Base64 added</li>
+        <li><span class="cl-tag cl-new">NEW</span> Global rate limiter (120 req/min per IP)</li>
+        <li><span class="cl-tag cl-new">NEW</span> <span class="ic">/api/stats</span> live server metrics endpoint</li>
+        <li><span class="cl-tag cl-new">NEW</span> Changelog, Contact &amp; Pricing pages</li>
+        <li><span class="cl-tag cl-new">NEW</span> Morgan request logging + Helmet security headers</li>
+        <li><span class="cl-tag cl-fix">FIX</span> Downloader now uses cobalt.tools with proper timeout handling</li>
+        <li><span class="cl-tag cl-fix">FIX</span> Consistent JSON envelope on all error responses</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- v1.2.0 -->
+  <div class="cl-entry">
+    <div class="cl-dot"><div class="cl-dot-inner" style="background:var(--text2)"></div></div>
+    <div class="cl-right">
+      <div class="cl-ver">v1.2.0</div>
+      <div class="cl-date">January 2025</div>
+      <div class="cl-title">Downloaders Expanded</div>
+      <ul class="cl-items">
+        <li><span class="cl-tag cl-new">NEW</span> Instagram downloader endpoint</li>
+        <li><span class="cl-tag cl-new">NEW</span> Twitter/X media downloader</li>
+        <li><span class="cl-tag cl-new">NEW</span> Facebook video downloader</li>
+        <li><span class="cl-tag cl-fix">FIX</span> YouTube MP4 quality parameter now respected</li>
+        <li><span class="cl-tag cl-fix">FIX</span> TikTok watermark removal improved</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- v1.1.0 -->
+  <div class="cl-entry">
+    <div class="cl-dot"><div class="cl-dot-inner" style="background:var(--text2)"></div></div>
+    <div class="cl-right">
+      <div class="cl-ver">v1.1.0</div>
+      <div class="cl-date">December 2024</div>
+      <div class="cl-title">Tools &amp; Anime</div>
+      <ul class="cl-items">
+        <li><span class="cl-tag cl-new">NEW</span> QR Code generator (PNG + SVG)</li>
+        <li><span class="cl-tag cl-new">NEW</span> URL shortener via TinyURL</li>
+        <li><span class="cl-tag cl-new">NEW</span> IP geolocation endpoint</li>
+        <li><span class="cl-tag cl-new">NEW</span> Anime search via Jikan (MyAnimeList)</li>
+        <li><span class="cl-tag cl-new">NEW</span> Random anime quotes</li>
+        <li><span class="cl-tag cl-fix">FIX</span> CORS headers now set correctly</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- v1.0.0 -->
+  <div class="cl-entry">
+    <div class="cl-dot"><div class="cl-dot-inner" style="background:var(--dim)"></div></div>
+    <div class="cl-right">
+      <div class="cl-ver">v1.0.0</div>
+      <div class="cl-date">November 2024</div>
+      <div class="cl-title">Initial Release</div>
+      <ul class="cl-items">
+        <li><span class="cl-tag cl-new">NEW</span> Express.js REST API server</li>
+        <li><span class="cl-tag cl-new">NEW</span> YouTube MP3 downloader</li>
+        <li><span class="cl-tag cl-new">NEW</span> YouTube MP4 downloader</li>
+        <li><span class="cl-tag cl-new">NEW</span> TikTok downloader</li>
+        <li><span class="cl-tag cl-new">NEW</span> Basic API key authentication</li>
+        <li><span class="cl-tag cl-new">NEW</span> JSON response format with status + creator fields</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/app.js"></script>
+<script>setNavActive('changelog');</script>
+</body>
+</html>

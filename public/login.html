@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CrazyApi — Login</title>
+<link rel="stylesheet" href="/assets/style.css"/>
+</head>
+<body>
+<nav id="nav">
+  <a class="nav-logo" href="/">CrazyApi</a>
+  <div class="nav-links">
+    <a class="nav-a always" href="/home"       data-page="home">Dashboard</a>
+    <a class="nav-a always" href="/downloader" data-page="downloader">Downloaders</a>
+    <a class="nav-a"        href="/docs"       data-page="docs">Docs</a>
+    <a class="nav-a"        href="/contact"    data-page="contact">Contact</a>
+  </div>
+  <div class="nav-right">
+    <div id="nav-auth" style="display:flex;gap:.5rem">
+      <a class="nav-btn btn-outline" href="/login">Login</a>
+      <a class="nav-btn btn-solid" href="/register">Get API Key &rarr;</a>
+    </div>
+    <div id="nav-user" style="display:none"></div>
+  </div>
+</nav>
+
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="auth-brand-name">CrazyApi</div>
+      <div style="font-size:.72rem;color:var(--text2);margin-top:.2rem;font-family:'Geist Mono',monospace">Free Multi-Purpose REST API</div>
+    </div>
+
+    <h2 class="auth-title">Welcome back</h2>
+    <p class="auth-sub">Login to access your dashboard and API key.</p>
+
+    <div class="f-error" id="login-error"></div>
+
+    <div class="f-group">
+      <label class="f-label">Email address</label>
+      <input class="f-input" type="email" id="login-email" placeholder="you@example.com" autocomplete="email"/>
+    </div>
+    <div class="f-group">
+      <label class="f-label">Password</label>
+      <input class="f-input" type="password" id="login-pass" placeholder="Your password" autocomplete="current-password"/>
+    </div>
+
+    <button class="f-btn" id="login-btn" onclick="doLogin()">
+      Login
+      <div class="spin" id="login-spin"></div>
+    </button>
+
+    <div class="f-switch" style="margin-top:1.25rem">
+      Don't have an account? <a class="f-link" href="/register">Create one free</a>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/app.js"></script>
+<script>
+setNavActive('login');
+
+if (Auth.isLoggedIn()) window.location.href = '/dashboard';
+
+async function doLogin() {
+  const btn   = document.getElementById('login-btn');
+  const spin  = document.getElementById('login-spin');
+  const errEl = document.getElementById('login-error');
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+
+  errEl.style.display = 'none';
+
+  if (!email || !pass) {
+    errEl.textContent = 'Email and password are required.';
+    errEl.style.display = 'block'; return;
+  }
+
+  btn.disabled = true;
+  spin.style.display = 'inline-block';
+
+  try {
+    const res  = await fetch('/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass }),
+    });
+    const data = await res.json();
+
+    if (data.status) {
+      Auth.set({ token: data.token, user: data.user });
+      toast('Welcome back, ' + (data.user.username || 'User') + '!');
+      window.location.href = '/dashboard';
+    } else {
+      errEl.textContent = data.error || 'Invalid email or password.';
+      errEl.style.display = 'block';
+    }
+  } catch (e) {
+    errEl.textContent = 'Network error: ' + e.message;
+    errEl.style.display = 'block';
+  }
+
+  btn.disabled = false;
+  spin.style.display = 'none';
+}
+
+document.getElementById('login-pass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+</script>
+</body>
+</html>

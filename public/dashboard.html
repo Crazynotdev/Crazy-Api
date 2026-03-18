@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CrazyApi — My Dashboard</title>
+<link rel="stylesheet" href="/assets/style.css"/>
+</head>
+<body>
+<nav id="nav">
+  <a class="nav-logo" href="/">CrazyApi</a>
+  <div class="nav-links">
+    <a class="nav-a always" href="/home"       data-page="home">Dashboard</a>
+    <a class="nav-a always" href="/downloader" data-page="downloader">Downloaders</a>
+    <a class="nav-a"        href="/tools"      data-page="tools">Tools</a>
+    <a class="nav-a"        href="/anime"      data-page="anime">Anime</a>
+    <a class="nav-a"        href="/search"     data-page="search">Search</a>
+    <a class="nav-a"        href="/sports"     data-page="sports">Sports</a>
+    <a class="nav-a"        href="/fun"        data-page="fun">Fun</a>
+    <a class="nav-a"        href="/docs"       data-page="docs">Docs</a>
+    <a class="nav-a"        href="/contact"    data-page="contact">Contact</a>
+  </div>
+  <div class="nav-right">
+    <div id="nav-auth" style="display:flex;gap:.5rem">
+      <a class="nav-btn btn-outline" href="/login">Login</a>
+      <a class="nav-btn btn-solid" href="/register">Get API Key &rarr;</a>
+    </div>
+    <div id="nav-user" style="display:none;align-items:center;gap:.5rem">
+      <a class="nav-btn btn-outline" href="/dashboard" style="display:flex;align-items:center;gap:.4rem">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block"></span>
+        <span id="nav-uname">User</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="dash-page">
+  <!-- TOP -->
+  <div class="dash-top">
+    <div>
+      <div class="dash-greeting">Welcome back, <span id="d-username">—</span> 👋</div>
+      <div class="dash-sub">Manage your API key, monitor usage and explore endpoints.</div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">Logout</button>
+  </div>
+
+  <!-- STATS CARDS -->
+  <div class="dash-cards">
+    <div class="dash-card">
+      <div class="dc-label">Plan</div>
+      <div class="dc-val"><span class="plan-pill plan-free" id="d-plan">FREE</span></div>
+      <div class="dc-sub" id="d-limit">500 req / day</div>
+    </div>
+    <div class="dash-card">
+      <div class="dc-label">Total Requests</div>
+      <div class="dc-val" id="d-reqs">—</div>
+      <div class="dc-sub">All time</div>
+    </div>
+    <div class="dash-card">
+      <div class="dc-label">Member Since</div>
+      <div class="dc-val" id="d-since" style="font-size:1.1rem">—</div>
+      <div class="dc-sub">Account created</div>
+    </div>
+    <div class="dash-card">
+      <div class="dc-label">Last Used</div>
+      <div class="dc-val" id="d-last" style="font-size:1.1rem">—</div>
+      <div class="dc-sub">Last API call</div>
+    </div>
+  </div>
+
+  <!-- API KEY -->
+  <div class="dash-section">
+    <div class="dash-s-title">🔑 Your API Key</div>
+    <div style="background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:.75rem 1rem;font-family:'Geist Mono',monospace;font-size:.83rem;color:var(--accent2);display:flex;align-items:center;gap:.75rem;word-break:break-all">
+      <span id="d-apikey" style="flex:1">Loading…</span>
+      <button class="copy-btn" onclick="copyText('d-apikey')" style="font-size:.78rem;color:var(--text2);padding:.25rem .6rem;border:1px solid var(--border2);border-radius:5px;white-space:nowrap">
+        📋 Copy
+      </button>
+    </div>
+    <p style="color:var(--text2);font-size:.78rem;margin-top:.75rem">
+      Append <span class="ic">?apikey=YOUR_KEY</span> to every API request. Keep this key private.
+    </p>
+  </div>
+
+  <!-- EXAMPLE USAGE -->
+  <div class="dash-section">
+    <div class="dash-s-title">⚡ Quick Usage</div>
+    <div id="usage-code" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:'Geist Mono',monospace;font-size:.76rem;color:var(--accent2);line-height:1.8;white-space:pre-wrap">Loading…</div>
+  </div>
+
+  <!-- QUICK LINKS -->
+  <div class="dash-section">
+    <div class="dash-s-title">🗂️ Explore Endpoints</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.6rem">
+      <a href="/downloader" style="display:block;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:.875rem;text-decoration:none;color:var(--text);font-size:.85rem;font-weight:600;transition:all .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">⬇️ Downloaders</a>
+      <a href="/tools"      style="display:block;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:.875rem;text-decoration:none;color:var(--text);font-size:.85rem;font-weight:600;transition:all .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">🛠️ Dev Tools</a>
+      <a href="/anime"      style="display:block;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:.875rem;text-decoration:none;color:var(--text);font-size:.85rem;font-weight:600;transition:all .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">🎌 Anime</a>
+      <a href="/search"     style="display:block;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:.875rem;text-decoration:none;color:var(--text);font-size:.85rem;font-weight:600;transition:all .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">🔍 Search</a>
+      <a href="/sports"     style="display:block;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:.875rem;text-decoration:none;color:var(--text);font-size:.85rem;font-weight:600;transition:all .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">⚽ Sports</a>
+      <a href="/fun"        style="display:block;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:.875rem;text-decoration:none;color:var(--text);font-size:.85rem;font-weight:600;transition:all .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">😂 Fun</a>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/app.js"></script>
+<script>
+setNavActive('dashboard');
+
+const sess = Auth.get();
+if (!sess?.token) { window.location.href = '/login'; }
+
+function fill(user) {
+  document.getElementById('d-username').textContent = user.username || '—';
+  document.getElementById('nav-uname').textContent  = user.username || 'User';
+  document.getElementById('d-apikey').textContent   = user.apikey   || '—';
+  document.getElementById('d-reqs').textContent     = (user.requests_count ?? 0).toLocaleString();
+  document.getElementById('d-plan').textContent     = (user.plan || 'free').toUpperCase();
+  document.getElementById('d-plan').className       = 'plan-pill plan-' + (user.plan || 'free');
+  document.getElementById('d-limit').textContent    = user.daily_limit ? user.daily_limit.toLocaleString() + ' req / day' : '500 req / day';
+  document.getElementById('d-since').textContent    = user.created_at ? new Date(user.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+  document.getElementById('d-last').textContent     = user.last_used  ? new Date(user.last_used).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : 'Never';
+
+  const key = user.apikey || 'YOUR_KEY';
+  document.getElementById('usage-code').textContent =
+`# cURL
+curl "http://localhost:3000/api/fun/joke?apikey=${key}&category=Programming"
+
+# JavaScript
+const res  = await fetch('/api/anime/waifu?apikey=${key}');
+const data = await res.json();
+console.log(data.result.url);
+
+# Python
+import requests
+r = requests.get('/api/search/wiki', params={'apikey':'${key}','q':'JavaScript'})
+print(r.json()['result']['extract'])`;
+}
+
+// Fill from local session first
+if (sess?.user) fill(sess.user);
+
+// Then refresh from server
+async function refreshUser() {
+  try {
+    const res  = await fetch('/auth/me', { headers: { Authorization: 'Bearer ' + sess.token } });
+    const data = await res.json();
+    if (data.status && data.user) {
+      const updated = { ...sess, user: { ...sess.user, ...data.user } };
+      Auth.set(updated);
+      fill(updated.user);
+    }
+  } catch {}
+}
+refreshUser();
+
+function doLogout() {
+  Auth.clear();
+  toast('Logged out.');
+  window.location.href = '/';
+}
+</script>
+</body>
+</html>

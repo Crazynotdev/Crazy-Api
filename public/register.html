@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CrazyApi — Create Account</title>
+<link rel="stylesheet" href="/assets/style.css"/>
+</head>
+<body>
+<nav id="nav">
+  <a class="nav-logo" href="/">CrazyApi</a>
+  <div class="nav-links">
+    <a class="nav-a always" href="/home"       data-page="home">Dashboard</a>
+    <a class="nav-a always" href="/downloader" data-page="downloader">Downloaders</a>
+    <a class="nav-a"        href="/docs"       data-page="docs">Docs</a>
+    <a class="nav-a"        href="/changelog"  data-page="changelog">Changelog</a>
+    <a class="nav-a"        href="/contact"    data-page="contact">Contact</a>
+  </div>
+  <div class="nav-right">
+    <div id="nav-auth" style="display:flex;gap:.5rem">
+      <a class="nav-btn btn-outline" href="/login">Login</a>
+      <a class="nav-btn btn-solid" href="/register">Register</a>
+    </div>
+    <div id="nav-user" style="display:none"></div>
+  </div>
+</nav>
+
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="auth-brand-name">CrazyApi</div>
+      <div style="font-size:.72rem;color:var(--text2);margin-top:.2rem;font-family:'Geist Mono',monospace">Free Multi-Purpose REST API</div>
+    </div>
+
+    <h2 class="auth-title">Create your account</h2>
+    <p class="auth-sub">Free forever. Get your API key instantly.</p>
+
+    <div class="f-error" id="reg-error"></div>
+    <div class="f-success" id="reg-success"></div>
+
+    <!-- API Key reveal (shown after success) -->
+    <div class="apikey-box" id="reg-apikey-box" style="display:none;margin-bottom:1.25rem">
+      <div class="apikey-box-label">🎉 Your API Key — Save it now!</div>
+      <div class="apikey-val-row">
+        <span id="reg-apikey-val" style="word-break:break-all;flex:1">—</span>
+        <button class="copy-btn" onclick="copyText('reg-apikey-val')">copy</button>
+      </div>
+      <p style="color:var(--text2);font-size:.75rem;margin-top:.75rem">Keep this key private. Use it in every API request as <span class="ic">?apikey=YOUR_KEY</span></p>
+      <a href="/dashboard" style="display:inline-block;margin-top:.875rem;background:var(--accent);color:#fff;padding:.5rem 1.25rem;border-radius:7px;font-size:.85rem;font-weight:700;text-decoration:none">Go to Dashboard →</a>
+    </div>
+
+    <!-- Form -->
+    <div id="reg-form">
+      <div class="f-group">
+        <label class="f-label">Username</label>
+        <input class="f-input" type="text" id="reg-username" placeholder="cooldevname" autocomplete="username"/>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Email address</label>
+        <input class="f-input" type="email" id="reg-email" placeholder="you@example.com" autocomplete="email"/>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Password</label>
+        <input class="f-input" type="password" id="reg-pass" placeholder="Min. 8 characters" autocomplete="new-password"/>
+      </div>
+      <button class="f-btn" id="reg-btn" onclick="doRegister()">
+        Create Free Account
+        <div class="spin" id="reg-spin"></div>
+      </button>
+    </div>
+
+    <div class="f-switch">Already have an account? <a class="f-link" href="/login">Login</a></div>
+
+    <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border)">
+      <div style="display:flex;gap:1.25rem;justify-content:center;font-size:.75rem;color:var(--dim)">
+        <span>✓ Free forever</span>
+        <span>✓ No credit card</span>
+        <span>✓ 35+ endpoints</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/app.js"></script>
+<script>
+setNavActive('register');
+
+// Redirect if already logged in
+if (Auth.isLoggedIn()) window.location.href = '/dashboard';
+
+async function doRegister() {
+  const btn      = document.getElementById('reg-btn');
+  const spin     = document.getElementById('reg-spin');
+  const errEl    = document.getElementById('reg-error');
+  const succEl   = document.getElementById('reg-success');
+  const username = document.getElementById('reg-username').value.trim();
+  const email    = document.getElementById('reg-email').value.trim();
+  const pass     = document.getElementById('reg-pass').value;
+
+  errEl.style.display  = 'none';
+  succEl.style.display = 'none';
+
+  if (!username || !email || !pass) {
+    errEl.textContent = 'All fields are required.';
+    errEl.style.display = 'block'; return;
+  }
+  if (username.length < 3) {
+    errEl.textContent = 'Username must be at least 3 characters.';
+    errEl.style.display = 'block'; return;
+  }
+  if (pass.length < 8) {
+    errEl.textContent = 'Password must be at least 8 characters.';
+    errEl.style.display = 'block'; return;
+  }
+
+  btn.disabled = true;
+  spin.style.display = 'inline-block';
+
+  try {
+    const res  = await fetch('/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, email, password: pass }),
+    });
+    const data = await res.json();
+
+    if (data.status) {
+      // Hide form, show key
+      document.getElementById('reg-form').style.display = 'none';
+      succEl.textContent = '🎉 Account created successfully!';
+      succEl.style.display = 'block';
+      document.getElementById('reg-apikey-val').textContent = data.apikey;
+      document.getElementById('reg-apikey-box').style.display = 'block';
+      toast('Account created! Save your API key.');
+    } else {
+      errEl.textContent = data.error || 'Registration failed. Try again.';
+      errEl.style.display = 'block';
+    }
+  } catch (e) {
+    errEl.textContent = 'Network error: ' + e.message;
+    errEl.style.display = 'block';
+  }
+
+  btn.disabled = false;
+  spin.style.display = 'none';
+}
+
+document.getElementById('reg-pass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doRegister();
+});
+</script>
+</body>
+</html>

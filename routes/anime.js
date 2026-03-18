@@ -1,84 +1,13 @@
-const express = require('express');
-const router  = express.Router();
-const axios   = require('axios');
-
-const C = () => process.env.CREATOR || 'CrazyApi';
-const SFW = ['waifu','neko','shinobu','megumin','bully','cuddle','cry','hug','awoo','kiss','lick','pat','smug','bonk','yeet','blush','smile','wave','highfive','handhold','nom','bite','glomp','slap','happy','wink','poke','dance','cringe'];
-
-router.get('/waifu', async (req, res) => {
-  try {
-    const r = await axios.get('https://api.waifu.pics/sfw/waifu', { timeout: 8000 });
-    res.json({ status: true, creator: C(), result: { url: r.data.url, category: 'waifu' } });
-  } catch (e) { res.json({ status: false, creator: C(), error: e.message }); }
-});
-
-router.get('/random', async (req, res) => {
-  const cat = SFW.includes(req.query.category) ? req.query.category : SFW[Math.floor(Math.random() * SFW.length)];
-  try {
-    const r = await axios.get(`https://api.waifu.pics/sfw/${cat}`, { timeout: 8000 });
-    res.json({ status: true, creator: C(), result: { url: r.data.url, category: cat }, available_categories: SFW });
-  } catch (e) { res.json({ status: false, creator: C(), error: e.message, available_categories: SFW }); }
-});
-
-router.get('/many', async (req, res) => {
-  const cat = SFW.includes(req.query.category) ? req.query.category : 'waifu';
-  try {
-    const r = await axios.post(`https://api.waifu.pics/many/sfw/${cat}`, {}, { timeout: 8000 });
-    res.json({ status: true, creator: C(), category: cat, count: r.data.files?.length || 0, result: r.data.files });
-  } catch (e) { res.json({ status: false, creator: C(), error: e.message }); }
-});
-
-router.get('/search', async (req, res) => {
-  const { q, limit = '8', type, status } = req.query;
-  if (!q) return res.json({ status: false, creator: C(), error: 'Missing q parameter' });
-  try {
-    let url = `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(q)}&limit=${Math.min(parseInt(limit), 20)}`;
-    if (type)   url += `&type=${type}`;
-    if (status) url += `&status=${status}`;
-    const r = await axios.get(url, { timeout: 12000 });
-    res.json({ status: true, creator: C(), query: q, count: r.data.data.length, result: r.data.data.map(a => ({ mal_id: a.mal_id, title: a.title, title_english: a.title_english, episodes: a.episodes, score: a.score, status: a.status, type: a.type, year: a.year, synopsis: a.synopsis?.slice(0,200)+'...', image: a.images?.jpg?.large_image_url, genres: a.genres?.map(g=>g.name), studios: a.studios?.map(s=>s.name) })) });
-  } catch (e) { res.json({ status: false, creator: C(), error: e.message }); }
-});
-
-router.get('/top', async (req, res) => {
-  const { type = 'tv', filter = 'bypopularity', limit = '10' } = req.query;
-  try {
-    const r = await axios.get(`https://api.jikan.moe/v4/top/anime?type=${type}&filter=${filter}&limit=${Math.min(parseInt(limit),25)}`, { timeout: 12000 });
-    res.json({ status: true, creator: C(), count: r.data.data.length, result: r.data.data.map(a => ({ rank: a.rank, mal_id: a.mal_id, title: a.title, score: a.score, episodes: a.episodes, status: a.status, year: a.year, image: a.images?.jpg?.image_url, genres: a.genres?.map(g=>g.name) })) });
-  } catch (e) { res.json({ status: false, creator: C(), error: e.message }); }
-});
-
-router.get('/info', async (req, res) => {
-  const { id } = req.query;
-  if (!id) return res.json({ status: false, creator: C(), error: 'Missing id (MAL ID)' });
-  try {
-    const r = await axios.get(`https://api.jikan.moe/v4/anime/${id}/full`, { timeout: 10000 });
-    const a = r.data.data;
-    res.json({ status: true, creator: C(), result: { mal_id: a.mal_id, title: a.title, title_english: a.title_english, synopsis: a.synopsis, episodes: a.episodes, score: a.score, rank: a.rank, popularity: a.popularity, status: a.status, type: a.type, year: a.year, rating: a.rating, image: a.images?.jpg?.large_image_url, trailer: a.trailer?.url, genres: a.genres?.map(g=>g.name), studios: a.studios?.map(s=>s.name) } });
-  } catch (e) { res.json({ status: false, creator: C(), error: e.message }); }
-});
-
-router.get('/quote', async (req, res) => {
-  const FALLBACK = [
-    { quote: "It's not the face that makes someone a monster, it's the choices they make.", character: "Naruto Uzumaki", anime: "Naruto" },
-    { quote: "If you don't take risks, you can't create a future.", character: "Monkey D. Luffy", anime: "One Piece" },
-    { quote: "A lesson without pain is meaningless.", character: "Edward Elric", anime: "Fullmetal Alchemist" },
-    { quote: "Believe in yourself. Not the you who believes in me, but the you who believes in yourself.", character: "Kamina", anime: "Gurren Lagann" },
-    { quote: "On that day, mankind remembered the terror of being ruled by them.", character: "Narrator", anime: "Attack on Titan" },
-  ];
-  try {
-    const url = req.query.anime ? `https://animechan.io/api/v1/quotes/anime?title=${encodeURIComponent(req.query.anime)}` : 'https://animechan.io/api/v1/quotes/random';
-    const r = await axios.get(url, { timeout: 6000 });
-    const q = Array.isArray(r.data?.data) ? r.data.data[0] : r.data?.data;
-    res.json({ status: true, creator: C(), result: { quote: q?.content, character: q?.character?.name, anime: q?.anime?.name } });
-  } catch {
-    res.json({ status: true, creator: C(), result: FALLBACK[Math.floor(Math.random() * FALLBACK.length)] });
-  }
-});
-
-router.get('/fact', (req, res) => {
-  const facts = ["Dragon Ball Z aired 3 times a day in France during its peak.","One Piece has sold 520+ million copies — the best-selling manga ever.","Hayao Miyazaki retired 3 different times to then keep making films.","Demon Slayer: Mugen Train became Japan's highest-grossing film ever.","Pokémon is the highest-grossing media franchise of all time ($150B+).","The word anime is simply Japanese for 'animation'.","Spirited Away won the Academy Award for Best Animated Feature in 2003.","Sazae-san (1969) is the longest running anime still airing today.","Death Note was initially rejected before being approved for Shonen Jump.","Jujutsu Kaisen 0 made $17M in its Japanese opening weekend alone."];
-  res.json({ status: true, creator: C(), result: facts[Math.floor(Math.random() * facts.length)] });
-});
-
-module.exports = router;
+const express=require('express'),router=express.Router(),axios=require('axios'),{C}=require('../middleware/auth');
+const SFW=['waifu','neko','shinobu','megumin','bully','cuddle','cry','hug','awoo','kiss','lick','pat','smug','bonk','yeet','blush','smile','wave','highfive','handhold','nom','bite','glomp','slap','happy','wink','poke','dance','cringe'];
+router.get('/waifu',  async(req,res)=>{try{const r=await axios.get('https://api.waifu.pics/sfw/waifu',{timeout:8000});res.json({status:true,creator:C(),result:{url:r.data.url,category:'waifu'}});}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+router.get('/neko',   async(req,res)=>{try{const r=await axios.get('https://api.waifu.pics/sfw/neko',{timeout:8000});res.json({status:true,creator:C(),result:{url:r.data.url,category:'neko'}});}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+router.get('/random', async(req,res)=>{const cat=SFW.includes(req.query.category)?req.query.category:SFW[Math.floor(Math.random()*SFW.length)];try{const r=await axios.get(`https://api.waifu.pics/sfw/${cat}`,{timeout:8000});res.json({status:true,creator:C(),result:{url:r.data.url,category:cat},available_categories:SFW});}catch(e){res.json({status:false,creator:C(),error:e.message,available_categories:SFW});}});
+router.get('/many',   async(req,res)=>{const cat=SFW.includes(req.query.category)?req.query.category:'waifu';try{const r=await axios.post(`https://api.waifu.pics/many/sfw/${cat}`,{},{timeout:8000});res.json({status:true,creator:C(),category:cat,count:r.data.files?.length||0,result:r.data.files});}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+router.get('/husbando',async(req,res)=>{try{const r=await axios.get('https://api.waifu.im/search?included_tags=maid',{timeout:8000});res.json({status:true,creator:C(),result:{url:r.data.images?.[0]?.url,category:'husbando'}});}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+router.get('/search', async(req,res)=>{const{q,limit='8',type,status}=req.query;if(!q)return res.json({status:false,creator:C(),error:'Missing q'});try{let u=`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(q)}&limit=${Math.min(parseInt(limit),20)}`;if(type)u+=`&type=${type}`;if(status)u+=`&status=${status}`;const r=await axios.get(u,{timeout:12000});res.json({status:true,creator:C(),query:q,count:r.data.data.length,result:r.data.data.map(a=>({mal_id:a.mal_id,title:a.title,title_english:a.title_english,episodes:a.episodes,score:a.score,status:a.status,type:a.type,year:a.year,synopsis:a.synopsis?.slice(0,200)+'...',image:a.images?.jpg?.large_image_url,genres:a.genres?.map(g=>g.name)}))});}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+router.get('/top',    async(req,res)=>{const{type='tv',filter='bypopularity',limit='10'}=req.query;try{const r=await axios.get(`https://api.jikan.moe/v4/top/anime?type=${type}&filter=${filter}&limit=${Math.min(parseInt(limit),25)}`,{timeout:12000});res.json({status:true,creator:C(),count:r.data.data.length,result:r.data.data.map(a=>({rank:a.rank,mal_id:a.mal_id,title:a.title,score:a.score,episodes:a.episodes,status:a.status,year:a.year,image:a.images?.jpg?.image_url,genres:a.genres?.map(g=>g.name)}))});}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+router.get('/info',   async(req,res)=>{const{id}=req.query;if(!id)return res.json({status:false,creator:C(),error:'Missing id (MAL ID)'});try{const r=await axios.get(`https://api.jikan.moe/v4/anime/${id}/full`,{timeout:10000});const a=r.data.data;res.json({status:true,creator:C(),result:{mal_id:a.mal_id,title:a.title,title_english:a.title_english,synopsis:a.synopsis,episodes:a.episodes,score:a.score,rank:a.rank,popularity:a.popularity,status:a.status,type:a.type,year:a.year,rating:a.rating,image:a.images?.jpg?.large_image_url,trailer:a.trailer?.url,genres:a.genres?.map(g=>g.name),studios:a.studios?.map(s=>s.name)}});}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+router.get('/quote',  async(req,res)=>{const FB=[{quote:"It's not the face that makes someone a monster, it's the choices.",character:"Naruto",anime:"Naruto"},{quote:"If you don't take risks, you can't create a future.",character:"Luffy",anime:"One Piece"},{quote:"A lesson without pain is meaningless.",character:"Edward Elric",anime:"FMA"}];try{const r=await axios.get(req.query.anime?`https://animechan.io/api/v1/quotes/anime?title=${encodeURIComponent(req.query.anime)}`:'https://animechan.io/api/v1/quotes/random',{timeout:6000});const q=Array.isArray(r.data?.data)?r.data.data[0]:r.data?.data;res.json({status:true,creator:C(),result:{quote:q?.content,character:q?.character?.name,anime:q?.anime?.name}});}catch{res.json({status:true,creator:C(),result:FB[Math.floor(Math.random()*FB.length)]});}});
+router.get('/fact',   (req,res)=>{const f=["One Piece has sold 520M+ copies — best-selling manga ever.","Demon Slayer: Mugen Train became Japan's highest-grossing film.","Pokémon is the highest-grossing media franchise ever ($150B+).","Spirited Away won the Oscar for Best Animated Feature in 2003.","Death Note was rejected before approval for Shonen Jump.","Sazae-san (1969) is the longest running anime still airing today.","The word anime is simply Japanese for 'animation'."];res.json({status:true,creator:C(),result:f[Math.floor(Math.random()*f.length)]});});
+module.exports=router;

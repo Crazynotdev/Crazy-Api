@@ -1,70 +1,11 @@
-const express = require('express');
-const router  = express.Router();
-const axios   = require('axios');
-
-const C = () => process.env.CREATOR || 'CrazyApi';
-
-router.get('/wiki', async (req, res) => {
-  const { q, lang = 'en' } = req.query;
-  if (!q) return res.json({ status: false, creator: C(), error: 'Missing q parameter' });
-  try {
-    const r = await axios.get(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(q.replace(/ /g,'_'))}`, { timeout: 8000 });
-    const d = r.data;
-    res.json({ status: true, creator: C(), result: { title: d.title, description: d.description, extract: d.extract, image: d.thumbnail?.source || null, url: d.content_urls?.desktop?.page, lang } });
-  } catch { res.json({ status: false, creator: C(), error: `Article not found: "${q}"` }); }
-});
-
-router.get('/wikipedia', async (req, res) => {
-  const { q, lang = 'en', limit = '8' } = req.query;
-  if (!q) return res.json({ status: false, creator: C(), error: 'Missing q parameter' });
-  try {
-    const r = await axios.get(`https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&srlimit=${Math.min(parseInt(limit),20)}`, { timeout: 8000 });
-    res.json({ status: true, creator: C(), query: q, count: r.data.query.search.length, result: r.data.query.search.map(s => ({ title: s.title, snippet: s.snippet.replace(/<[^>]+>/g,''), pageid: s.pageid, url: `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(s.title.replace(/ /g,'_'))}` })) });
-  } catch (e) { res.json({ status: false, creator: C(), error: e.message }); }
-});
-
-router.get('/npm', async (req, res) => {
-  const { q, limit = '8' } = req.query;
-  if (!q) return res.json({ status: false, creator: C(), error: 'Missing q parameter' });
-  try {
-    const r = await axios.get(`https://registry.npmjs.org/-/v1/search?text=${encodeURIComponent(q)}&size=${Math.min(parseInt(limit),20)}`, { timeout: 8000 });
-    res.json({ status: true, creator: C(), query: q, count: r.data.objects.length, result: r.data.objects.map(o => ({ name: o.package.name, version: o.package.version, description: o.package.description, author: o.package.author?.name, keywords: o.package.keywords, date: o.package.date, url: o.package.links?.npm, repository: o.package.links?.repository, score: (o.score.final*100).toFixed(1)+'%' })) });
-  } catch (e) { res.json({ status: false, creator: C(), error: e.message }); }
-});
-
-router.get('/github', async (req, res) => {
-  const { q, type = 'repos', limit = '8' } = req.query;
-  if (!q) return res.json({ status: false, creator: C(), error: 'Missing q parameter' });
-  try {
-    const headers = { 'User-Agent': 'CrazyApi/2.0' };
-    if (type === 'user') {
-      const r = await axios.get(`https://api.github.com/users/${encodeURIComponent(q)}`, { headers, timeout: 8000 });
-      const d = r.data;
-      res.json({ status: true, creator: C(), type: 'user', result: { login: d.login, name: d.name, bio: d.bio, avatar: d.avatar_url, followers: d.followers, following: d.following, public_repos: d.public_repos, url: d.html_url, location: d.location, blog: d.blog, company: d.company, created_at: d.created_at } });
-    } else {
-      const r = await axios.get(`https://api.github.com/search/repositories?q=${encodeURIComponent(q)}&per_page=${Math.min(parseInt(limit),20)}&sort=stars`, { headers, timeout: 8000 });
-      res.json({ status: true, creator: C(), type: 'repos', total: r.data.total_count, count: r.data.items.length, result: r.data.items.map(repo => ({ name: repo.full_name, description: repo.description, stars: repo.stargazers_count, forks: repo.forks_count, language: repo.language, url: repo.html_url, homepage: repo.homepage, license: repo.license?.name, updated: repo.updated_at })) });
-    }
-  } catch (e) { res.json({ status: false, creator: C(), error: e.message }); }
-});
-
-router.get('/dictionary', async (req, res) => {
-  const { word } = req.query;
-  if (!word) return res.json({ status: false, creator: C(), error: 'Missing word parameter' });
-  try {
-    const r = await axios.get(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word.toLowerCase())}`, { timeout: 8000 });
-    const e = r.data[0];
-    res.json({ status: true, creator: C(), result: { word: e.word, phonetic: e.phonetic, audio: e.phonetics?.find(p=>p.audio)?.audio||null, meanings: e.meanings.map(m => ({ partOfSpeech: m.partOfSpeech, definitions: m.definitions.slice(0,4).map(d=>({definition:d.definition,example:d.example||null})), synonyms: m.synonyms.slice(0,8), antonyms: m.antonyms.slice(0,8) })) } });
-  } catch { res.json({ status: false, creator: C(), error: `Word "${word}" not found` }); }
-});
-
-router.get('/lyrics', async (req, res) => {
-  const { artist, title } = req.query;
-  if (!artist || !title) return res.json({ status: false, creator: C(), error: 'Missing artist and title parameters' });
-  try {
-    const r = await axios.get(`https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`, { timeout: 10000 });
-    res.json({ status: true, creator: C(), result: { artist, title, lyrics: r.data.lyrics } });
-  } catch { res.json({ status: false, creator: C(), error: `Lyrics not found for "${title}" by ${artist}` }); }
-});
-
-module.exports = router;
+const express=require('express'),router=express.Router(),axios=require('axios'),{C}=require('../middleware/auth');
+router.get('/wiki',       async(req,res)=>{const{q,lang='en'}=req.query;if(!q)return res.json({status:false,creator:C(),error:'Missing q'});try{const r=await axios.get(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(q.replace(/ /g,'_'))}`,{timeout:8000});const d=r.data;res.json({status:true,creator:C(),result:{title:d.title,description:d.description,extract:d.extract,image:d.thumbnail?.source||null,url:d.content_urls?.desktop?.page,lang}});}catch{res.json({status:false,creator:C(),error:`Article not found: "${req.query.q}"`});}});
+router.get('/wikipedia',  async(req,res)=>{const{q,lang='en',limit='8'}=req.query;if(!q)return res.json({status:false,creator:C(),error:'Missing q'});try{const r=await axios.get(`https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&srlimit=${Math.min(parseInt(limit),20)}`,{timeout:8000});res.json({status:true,creator:C(),query:q,count:r.data.query.search.length,result:r.data.query.search.map(s=>({title:s.title,snippet:s.snippet.replace(/<[^>]+>/g,''),pageid:s.pageid,url:`https://${lang}.wikipedia.org/wiki/${encodeURIComponent(s.title.replace(/ /g,'_'))}`}))});}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+router.get('/npm',        async(req,res)=>{const{q,limit='8'}=req.query;if(!q)return res.json({status:false,creator:C(),error:'Missing q'});try{const r=await axios.get(`https://registry.npmjs.org/-/v1/search?text=${encodeURIComponent(q)}&size=${Math.min(parseInt(limit),20)}`,{timeout:8000});res.json({status:true,creator:C(),query:q,count:r.data.objects.length,result:r.data.objects.map(o=>({name:o.package.name,version:o.package.version,description:o.package.description,author:o.package.author?.name,date:o.package.date,url:o.package.links?.npm,score:(o.score.final*100).toFixed(1)+'%'}))});}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+router.get('/github',     async(req,res)=>{const{q,type='repos',limit='8'}=req.query;if(!q)return res.json({status:false,creator:C(),error:'Missing q'});try{const h={'User-Agent':'CrazyApi/3.0'};if(type==='user'){const r=await axios.get(`https://api.github.com/users/${encodeURIComponent(q)}`,{headers:h,timeout:8000});const d=r.data;res.json({status:true,creator:C(),type:'user',result:{login:d.login,name:d.name,bio:d.bio,avatar:d.avatar_url,followers:d.followers,following:d.following,public_repos:d.public_repos,url:d.html_url,location:d.location,company:d.company,created_at:d.created_at}});}else{const r=await axios.get(`https://api.github.com/search/repositories?q=${encodeURIComponent(q)}&per_page=${Math.min(parseInt(limit),20)}&sort=stars`,{headers:h,timeout:8000});res.json({status:true,creator:C(),type:'repos',total:r.data.total_count,count:r.data.items.length,result:r.data.items.map(repo=>({name:repo.full_name,description:repo.description,stars:repo.stargazers_count,forks:repo.forks_count,language:repo.language,url:repo.html_url,license:repo.license?.name}))});}}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+router.get('/dictionary', async(req,res)=>{const{word}=req.query;if(!word)return res.json({status:false,creator:C(),error:'Missing word'});try{const r=await axios.get(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word.toLowerCase())}`,{timeout:8000});const e=r.data[0];res.json({status:true,creator:C(),result:{word:e.word,phonetic:e.phonetic,audio:e.phonetics?.find(p=>p.audio)?.audio||null,meanings:e.meanings.map(m=>({partOfSpeech:m.partOfSpeech,definitions:m.definitions.slice(0,4).map(d=>({definition:d.definition,example:d.example||null})),synonyms:m.synonyms.slice(0,8),antonyms:m.antonyms.slice(0,8)}))}});}catch{res.json({status:false,creator:C(),error:`Word "${req.query.word}" not found`});}});
+router.get('/lyrics',     async(req,res)=>{const{artist,title}=req.query;if(!artist||!title)return res.json({status:false,creator:C(),error:'Missing artist and title'});try{const r=await axios.get(`https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`,{timeout:10000});res.json({status:true,creator:C(),result:{artist,title,lyrics:r.data.lyrics}});}catch{res.json({status:false,creator:C(),error:`Lyrics not found for "${title}" by ${artist}`});}});
+router.get('/movies',     async(req,res)=>{const{q}=req.query;if(!q)return res.json({status:false,creator:C(),error:'Missing q'});try{const r=await axios.get(`https://www.omdbapi.com/?s=${encodeURIComponent(q)}&apikey=trilogy`,{timeout:8000});if(r.data.Response==='False')return res.json({status:false,creator:C(),error:r.data.Error||'No results'});res.json({status:true,creator:C(),query:q,count:r.data.Search?.length||0,result:(r.data.Search||[]).map(m=>({imdbID:m.imdbID,title:m.Title,year:m.Year,type:m.Type,poster:m.Poster}))});}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+router.get('/movie',      async(req,res)=>{const{id,title}=req.query;if(!id&&!title)return res.json({status:false,creator:C(),error:'Missing id or title'});try{const p=id?`i=${id}`:`t=${encodeURIComponent(title)}`;const r=await axios.get(`https://www.omdbapi.com/?${p}&plot=full&apikey=trilogy`,{timeout:8000});if(r.data.Response==='False')return res.json({status:false,creator:C(),error:r.data.Error||'Not found'});const m=r.data;res.json({status:true,creator:C(),result:{imdbID:m.imdbID,title:m.Title,year:m.Year,rated:m.Rated,runtime:m.Runtime,genre:m.Genre,director:m.Director,actors:m.Actors,plot:m.Plot,poster:m.Poster,imdbRating:m.imdbRating,awards:m.Awards}});}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+router.get('/books',      async(req,res)=>{const{q,limit='8'}=req.query;if(!q)return res.json({status:false,creator:C(),error:'Missing q'});try{const r=await axios.get(`https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=${Math.min(parseInt(limit),20)}&fields=key,title,author_name,first_publish_year,cover_i`,{timeout:10000});res.json({status:true,creator:C(),query:q,total:r.data.numFound,count:r.data.docs.length,result:r.data.docs.map(b=>({title:b.title,authors:b.author_name,year:b.first_publish_year,cover:b.cover_i?`https://covers.openlibrary.org/b/id/${b.cover_i}-L.jpg`:null}))});}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+module.exports=router;

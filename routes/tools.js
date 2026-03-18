@@ -1,85 +1,16 @@
-const express = require('express');
-const router  = express.Router();
-const axios   = require('axios');
-const QRCode  = require('qrcode');
-const { v4 }  = require('uuid');
-
-const C = () => process.env.CREATOR || 'CrazyApi';
-
-router.get('/qrcode', async (req, res) => {
-  const { text, size = '300', color = '000000', bg = 'ffffff', format } = req.query;
-  if (!text) return res.json({ status: false, creator: C(), error: 'Missing text parameter' });
-  try {
-    const opts = { width: Math.min(parseInt(size), 1000), color: { dark: '#' + color, light: '#' + bg } };
-    if (format === 'svg') {
-      const svg = await QRCode.toString(text, { ...opts, type: 'svg' });
-      res.setHeader('Content-Type', 'image/svg+xml');
-      return res.send(svg);
-    }
-    const qr = await QRCode.toDataURL(text, opts);
-    res.json({ status: true, creator: C(), text, qr, size: opts.width, format: 'base64/png' });
-  } catch (e) { res.json({ status: false, creator: C(), error: e.message }); }
-});
-
-router.get('/shorten', async (req, res) => {
-  const { url } = req.query;
-  if (!url) return res.json({ status: false, creator: C(), error: 'Missing url parameter' });
-  try {
-    const r = await axios.get(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`, { timeout: 8000 });
-    res.json({ status: true, creator: C(), original: url, short: r.data, provider: 'TinyURL' });
-  } catch (e) { res.json({ status: false, creator: C(), error: e.message }); }
-});
-
-router.get('/ip', async (req, res) => {
-  const ip = req.query.ip || req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress;
-  try {
-    const r = await axios.get(`http://ip-api.com/json/${ip}?fields=status,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,query,mobile,proxy,hosting`, { timeout: 8000 });
-    if (r.data.status !== 'success') return res.json({ status: false, creator: C(), error: 'Invalid IP: ' + ip });
-    const d = r.data;
-    res.json({ status: true, creator: C(), ip: d.query, country: d.country, country_code: d.countryCode, region: d.regionName, city: d.city, zip: d.zip, latitude: d.lat, longitude: d.lon, timezone: d.timezone, isp: d.isp, org: d.org, asn: d.as, mobile: d.mobile, proxy: d.proxy, hosting: d.hosting });
-  } catch (e) { res.json({ status: false, creator: C(), error: e.message }); }
-});
-
-router.get('/password', (req, res) => {
-  const { length = '16', symbols = 'false', uppercase = 'true', numbers = 'true' } = req.query;
-  const len = Math.min(Math.max(parseInt(length) || 16, 4), 256);
-  let chars = 'abcdefghijklmnopqrstuvwxyz';
-  if (uppercase !== 'false') chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  if (numbers   !== 'false') chars += '0123456789';
-  if (symbols   === 'true')  chars += '!@#$%^&*()-_=+[]{}|;:,.<>?';
-  let pw = ''; for (let i = 0; i < len; i++) pw += chars[Math.floor(Math.random() * chars.length)];
-  const strength = len >= 20 && symbols === 'true' ? 'Very Strong' : len >= 16 ? 'Strong' : len >= 10 ? 'Medium' : 'Weak';
-  res.json({ status: true, creator: C(), password: pw, length: len, strength, entropy: Math.floor(len * Math.log2(chars.length)) + ' bits' });
-});
-
-router.get('/base64', (req, res) => {
-  const { text, action = 'encode' } = req.query;
-  if (!text) return res.json({ status: false, creator: C(), error: 'Missing text parameter' });
-  try {
-    const result = action === 'decode' ? Buffer.from(text, 'base64').toString('utf-8') : Buffer.from(text).toString('base64');
-    res.json({ status: true, creator: C(), action, input: text, result });
-  } catch (e) { res.json({ status: false, creator: C(), error: 'Invalid base64: ' + e.message }); }
-});
-
-router.get('/uuid', (req, res) => {
-  const count = Math.min(parseInt(req.query.count) || 1, 50);
-  const uuids = Array.from({ length: count }, () => v4());
-  res.json({ status: true, creator: C(), count, result: count === 1 ? uuids[0] : uuids });
-});
-
-router.get('/lorem', async (req, res) => {
-  const paragraphs = Math.min(parseInt(req.query.paragraphs) || 3, 10);
-  try {
-    const r = await axios.get(`https://loripsum.net/api/${paragraphs}/medium/plaintext`, { timeout: 8000 });
-    res.json({ status: true, creator: C(), paragraphs, result: r.data.trim() });
-  } catch (e) { res.json({ status: false, creator: C(), error: e.message }); }
-});
-
-router.get('/screenshot', (req, res) => {
-  const { url, width = '1280', height = '720' } = req.query;
-  if (!url) return res.json({ status: false, creator: C(), error: 'Missing url parameter' });
-  const shot = `https://shot.screenshotapi.net/screenshot?url=${encodeURIComponent(url)}&width=${width}&height=${height}&output=image&file_type=png&wait_for_event=load`;
-  res.json({ status: true, creator: C(), url, screenshot: shot, width: parseInt(width), height: parseInt(height) });
-});
-
-module.exports = router;
+const express=require('express'),router=express.Router(),axios=require('axios'),QRCode=require('qrcode'),{v4}=require('uuid'),{C}=require('../middleware/auth');
+router.get('/qrcode',   async(req,res)=>{const{text,size='300',color='000000',bg='ffffff',format}=req.query;if(!text)return res.json({status:false,creator:C(),error:'Missing text'});try{const o={width:Math.min(parseInt(size),1000),color:{dark:'#'+color,light:'#'+bg}};if(format==='svg'){const s=await QRCode.toString(text,{...o,type:'svg'});res.setHeader('Content-Type','image/svg+xml');return res.send(s);}res.json({status:true,creator:C(),text,qr:await QRCode.toDataURL(text,o),size:o.width,format:'base64/png'});}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+router.get('/shorten',  async(req,res)=>{const{url}=req.query;if(!url)return res.json({status:false,creator:C(),error:'Missing url'});try{const r=await axios.get(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`,{timeout:8000});res.json({status:true,creator:C(),original:url,short:r.data,provider:'TinyURL'});}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+router.get('/ip',       async(req,res)=>{const ip=req.query.ip||req.headers['x-forwarded-for']?.split(',')[0]?.trim()||req.socket.remoteAddress;try{const r=await axios.get(`http://ip-api.com/json/${ip}?fields=status,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,query,mobile,proxy,hosting`,{timeout:8000});if(r.data.status!=='success')return res.json({status:false,creator:C(),error:'Invalid IP: '+ip});const d=r.data;res.json({status:true,creator:C(),result:{ip:d.query,country:d.country,country_code:d.countryCode,region:d.regionName,city:d.city,zip:d.zip,latitude:d.lat,longitude:d.lon,timezone:d.timezone,isp:d.isp,org:d.org,asn:d.as,mobile:d.mobile,proxy:d.proxy,hosting:d.hosting}});}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+router.get('/password', (req,res)=>{const{length='16',symbols='false',uppercase='true',numbers='true'}=req.query;const len=Math.min(Math.max(parseInt(length)||16,4),256);let c='abcdefghijklmnopqrstuvwxyz';if(uppercase!=='false')c+='ABCDEFGHIJKLMNOPQRSTUVWXYZ';if(numbers!=='false')c+='0123456789';if(symbols==='true')c+='!@#$%^&*()-_=+[]{}|;:,.<>?';let pw='';for(let i=0;i<len;i++)pw+=c[Math.floor(Math.random()*c.length)];res.json({status:true,creator:C(),password:pw,length:len,strength:len>=20&&symbols==='true'?'Very Strong':len>=16?'Strong':len>=10?'Medium':'Weak',entropy:Math.floor(len*Math.log2(c.length))+' bits'});});
+router.get('/uuid',     (req,res)=>{const n=Math.min(parseInt(req.query.count)||1,50);const u=Array.from({length:n},()=>v4());res.json({status:true,creator:C(),count:n,result:n===1?u[0]:u});});
+router.get('/base64',   (req,res)=>{const{text,action='encode'}=req.query;if(!text)return res.json({status:false,creator:C(),error:'Missing text'});try{const r=action==='decode'?Buffer.from(text,'base64').toString('utf-8'):Buffer.from(text).toString('base64');res.json({status:true,creator:C(),action,input:text,result:r});}catch(e){res.json({status:false,creator:C(),error:'Invalid: '+e.message});}});
+router.get('/hash',     (req,res)=>{const{text,algorithm='sha256'}=req.query;if(!text)return res.json({status:false,creator:C(),error:'Missing text'});try{const crypto=require('crypto');const a=['md5','sha1','sha256','sha512'];if(!a.includes(algorithm.toLowerCase()))return res.json({status:false,creator:C(),error:'Use: '+a.join(', ')});res.json({status:true,creator:C(),text,algorithm,result:crypto.createHash(algorithm.toLowerCase()).update(text).digest('hex')});}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+router.get('/lorem',    async(req,res)=>{const n=Math.min(parseInt(req.query.paragraphs)||3,10);try{const r=await axios.get(`https://loripsum.net/api/${n}/medium/plaintext`,{timeout:8000});res.json({status:true,creator:C(),paragraphs:n,result:r.data.trim()});}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+router.get('/random',   (req,res)=>{const{min='1',max='100',count='1'}=req.query;const mn=parseInt(min),mx=parseInt(max),ct=Math.min(parseInt(count)||1,100);if(mn>=mx)return res.json({status:false,creator:C(),error:'min must be less than max'});const n=Array.from({length:ct},()=>Math.floor(Math.random()*(mx-mn+1))+mn);res.json({status:true,creator:C(),min:mn,max:mx,count:ct,result:ct===1?n[0]:n});});
+router.get('/dns',      async(req,res)=>{const{domain,type='A'}=req.query;if(!domain)return res.json({status:false,creator:C(),error:'Missing domain'});try{const r=await axios.get(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=${type}`,{timeout:8000});res.json({status:true,creator:C(),domain,type,status_code:r.data.Status,result:(r.data.Answer||[]).map(a=>({name:a.name,type:a.type,ttl:a.TTL,data:a.data}))});}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+router.get('/color',    async(req,res)=>{const{hex}=req.query;if(!hex)return res.json({status:false,creator:C(),error:'Missing hex'});try{const r=await axios.get(`https://www.thecolorapi.com/id?hex=${hex.replace('#','')}`,{timeout:8000});const d=r.data;res.json({status:true,creator:C(),result:{hex:d.hex?.value,rgb:d.rgb?.value,hsl:d.hsl?.value,name:d.name?.value,image:`https://singlecolorimage.com/get/${hex.replace('#','')}/100x100`}});}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+router.get('/timezone', (req,res)=>{const{timezone='UTC'}=req.query;try{const now=new Date();const f=now.toLocaleString('en-US',{timeZone:timezone,year:'numeric',month:'long',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});res.json({status:true,creator:C(),timezone,utc:now.toISOString(),local:f});}catch(e){res.json({status:false,creator:C(),error:'Invalid timezone: '+timezone});}});
+router.get('/screenshot',(req,res)=>{const{url,width='1280',height='720'}=req.query;if(!url)return res.json({status:false,creator:C(),error:'Missing url'});res.json({status:true,creator:C(),url,screenshot:`https://shot.screenshotapi.net/screenshot?url=${encodeURIComponent(url)}&width=${width}&height=${height}&output=image&file_type=png&wait_for_event=load`,width:parseInt(width),height:parseInt(height)});});
+router.get('/textcase', (req,res)=>{const{text,to='upper'}=req.query;if(!text)return res.json({status:false,creator:C(),error:'Missing text'});const c={upper:text.toUpperCase(),lower:text.toLowerCase(),title:text.replace(/\w\S*/g,w=>w[0].toUpperCase()+w.slice(1).toLowerCase()),camel:text.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g,(_,x)=>x.toUpperCase()),snake:text.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,''),kebab:text.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,''),reverse:text.split('').reverse().join('')};if(!c[to])return res.json({status:false,creator:C(),error:'Use: '+Object.keys(c).join(', ')});res.json({status:true,creator:C(),input:text,to,result:c[to]});});
+module.exports=router;

@@ -1,61 +1,39 @@
-const express = require('express');
-const router  = express.Router();
-const axios   = require('axios');
-
-const C = () => process.env.CREATOR || 'CrazyApi';
-
-router.get('/joke', async (req, res) => {
-  const { category = 'Any', blacklist } = req.query;
-  try {
-    let url = `https://v2.jokeapi.dev/joke/${category}?format=json`;
-    if (blacklist) url += `&blacklistFlags=${blacklist}`;
-    const r = await axios.get(url, { timeout: 8000 });
-    const d = r.data;
-    res.json({ status: true, creator: C(), result: { category: d.category, type: d.type, joke: d.joke||null, setup: d.setup||null, punchline: d.delivery||null, safe: d.safe } });
-  } catch (e) { res.json({ status: false, creator: C(), error: e.message }); }
-});
-
-router.get('/meme', async (req, res) => {
-  const subs = ['memes','dankmemes','ProgrammerHumor','AdviceAnimals'];
-  const sub  = req.query.subreddit || subs[Math.floor(Math.random()*subs.length)];
-  try {
-    const r = await axios.get(`https://meme-api.com/gimme/${sub}`, { timeout: 8000 });
-    const d = r.data;
-    res.json({ status: true, creator: C(), result: { title: d.title, url: d.url, subreddit: d.subreddit, author: d.author, upvotes: d.ups, nsfw: d.nsfw, reddit_url: d.postLink } });
-  } catch (e) { res.json({ status: false, creator: C(), error: e.message }); }
-});
-
-router.get('/quote', async (req, res) => {
-  try {
-    const url = req.query.category ? `https://api.quotable.io/random?tags=${req.query.category}` : 'https://api.quotable.io/random';
-    const r = await axios.get(url, { timeout: 8000 });
-    res.json({ status: true, creator: C(), result: { quote: r.data.content, author: r.data.author, tags: r.data.tags } });
-  } catch {
-    const quotes = [{ quote:"The only way to do great work is to love what you do.",author:"Steve Jobs"},{ quote:"Life is what happens while you're busy making other plans.",author:"John Lennon"},{ quote:"In the middle of every difficulty lies opportunity.",author:"Albert Einstein"}];
-    res.json({ status: true, creator: C(), result: quotes[Math.floor(Math.random()*quotes.length)] });
-  }
-});
-
-router.get('/fact', async (req, res) => {
-  try {
-    const r = await axios.get('https://uselessfacts.jsph.pl/api/v2/facts/random?language=en', { timeout: 8000 });
-    res.json({ status: true, creator: C(), result: r.data.text });
-  } catch {
-    const facts = ["A day on Venus is longer than a year on Venus.","Honey never spoils — 3000-year-old honey found in Egyptian tombs was still edible.","Bananas are technically berries, but strawberries are not.","A snail can sleep for 3 years.","The shortest war in history lasted 38 minutes (Zanzibar vs England, 1896)."];
-    res.json({ status: true, creator: C(), result: facts[Math.floor(Math.random()*facts.length)] });
-  }
-});
-
-router.get('/trivia', async (req, res) => {
-  const { difficulty = 'medium', amount = '1', category } = req.query;
-  try {
-    let url = `https://opentdb.com/api.php?amount=${Math.min(parseInt(amount),10)}&type=multiple&difficulty=${difficulty}`;
-    if (category) url += `&category=${category}`;
-    const r = await axios.get(url, { timeout: 8000 });
-    if (r.data.response_code !== 0) return res.json({ status: false, creator: C(), error: 'No trivia questions found' });
-    const result = r.data.results.map(q => ({ category: q.category, difficulty: q.difficulty, question: q.question.replace(/&[^;]+;/g, c => ({ '&quot;':'"','&#039;':"'",'&amp;':'&','&lt;':'<','&gt;':'>','&eacute;':'é' }[c]||c)), correct: q.correct_answer, choices: [...q.incorrect_answers, q.correct_answer].sort(()=>Math.random()-.5) }));
-    res.json({ status: true, creator: C(), count: result.length, result: result.length===1 ? result[0] : result });
-  } catch (e) { res.json({ status: false, creator: C(), error: e.message }); }
-});
-
-module.exports = router;
+const express=require('express'),router=express.Router(),axios=require('axios'),{C}=require('../middleware/auth');
+const DB={
+  jokes:["Why don't scientists trust atoms? Because they make up everything!","I told my wife she was drawing her eyebrows too high. She looked surprised.","What do you call cheese that isn't yours? Nacho cheese.","Why can't you give Elsa a balloon? Because she'll let it go.","I'm reading a book about anti-gravity. It's impossible to put down."],
+  advice:["Take breaks. Rest is productive.","Drink more water than you think you need.","The best time to start was yesterday. The second best is now.","Be kind to yourself — you're doing better than you think.","Don't compare your chapter 1 to someone else's chapter 20."],
+  dares:["Text your crush right now.","Do 20 push-ups on the spot.","Sing the chorus of your favorite song out loud.","Call a friend and tell them you appreciate them.","Talk in an accent for the next 5 minutes."],
+  valentines:["Every time I see you, my heart skips a beat.","You make every ordinary moment feel extraordinary.","Loving you is the best thing that ever happened to me.","You are my today and all of my tomorrows.","In a world full of choices, I'd choose you every single time."],
+  flirt:["Are you a magician? Because whenever I look at you, everyone else disappears.","Do you have a map? I keep getting lost in your eyes.","Is your name Google? Because you have everything I've been searching for.","Are you a parking ticket? Because you've got 'fine' written all over you.","Do you believe in love at first sight, or should I walk by again?"],
+  goodnight:["Sweet dreams — may your sleep be as wonderful as you are.","Close your eyes and let the stars guide you to beautiful dreams.","Good night! May your dreams be filled with happiness and peace.","Rest well — you deserve all the good things coming your way."],
+  quotes:["The only way to do great work is to love what you do. — Steve Jobs","In the middle of difficulty lies opportunity. — Albert Einstein","Be the change you wish to see in the world. — Gandhi","It always seems impossible until it's done. — Nelson Mandela"],
+  truth:["Have you ever lied to your best friend?","What's the most embarrassing thing you've ever done?","What's your biggest regret?","What's the most childish thing you still do?","Have you ever cheated on a test?"],
+  motivation:["Push yourself because no one else is going to do it for you.","Success doesn't come from what you do occasionally, it comes from what you do consistently.","Don't stop when you're tired. Stop when you're done.","Wake up with determination. Go to bed with satisfaction.","Great things never come from comfort zones."],
+  love:["Every love story is beautiful, but ours is my favorite.","You are the reason I believe in love.","My heart is and always will be yours.","You're not just my love, you're my best friend.","With you, I am home."],
+  friendship:["A true friend is someone who knows all about you and still loves you.","Friendship is not about who you've known the longest, it's about who walked in and never left.","Friends are the family we choose for ourselves.","Good friends are like stars — you don't always see them but they're always there."],
+  pickuplines:["Do you have a pencil? Because I want to erase your past and write our future.","Are you a camera? Because every time I look at you, I smile.","Is your name WiFi? Because I'm feeling a connection.","Do you like science? Because I've got great chemistry with you."],
+  heartbreak:["Sometimes you have to forget what you feel and remember what you deserve.","Pain is inevitable. Suffering is optional.","You didn't lose someone who loved you. You lost someone who didn't know how to love you.","Healing is not linear. Be patient with yourself."],
+  christmas:["May your Christmas sparkle with moments of love, laughter and goodwill.","Wishing you joy, peace and magic this holiday season!","Have yourself a merry little Christmas! 🎄"],
+  newyear:["Cheers to a new year and another chance to get it right! 🥂","New year, same amazing you — but leveled up!","May every day of the new year glow with good cheer!"],
+  halloween:["Have a boo-tifully spooky Halloween! 🎃","Creep it real this Halloween!","Eat, drink and be scary!"],
+  mothers:["A mother's love is the fuel that enables a normal human being to do the impossible.","Happy Mother's Day to the woman who makes everything possible! 💐"],
+  fathers:["Any man can be a father, but it takes someone special to be a dad.","Happy Father's Day to the world's greatest dad! 👨‍👧‍👦"],
+  girlfriend:["Every day with you feels like the best day of my life.","You make me smile in ways I never knew were possible. Happy Girlfriend's Day! 💕"],
+  boyfriend:["Being with you is my favorite place to be. Happy Boyfriend's Day! ❤️","You showed me what it means to be truly loved."],
+  shayari:["Tere bina zindagi se koi shikwa to nahin, tere bina zindagi bhi lekin zindagi to nahin.","Dil diya dard liya, yahi meri kismat hai.","Teri aankhon ki gehrayi mein khud ko dooba liya maine."],
+  roseday:["A single rose can be my garden, a single friend my world. Happy Rose Day! 🌹","Roses are red, but none as beautiful as you. Happy Rose Day!"],
+  gratitude:["Gratitude turns what we have into enough.","Thank you for being in my life — you make it better every day."],
+  thankyou:["Thank you for being you — the world is better because you're in it.","Your kindness means more than words can say. Thank you."],
+  compliments:["You light up every room you walk into.","The world is a better place because you're in it.","You have a beautiful soul."],
+  insults:["I'd agree with you but then we'd both be wrong.","You're the reason God created the middle finger.","You're like a cloud — when you disappear, it's a beautiful day."],
+  morning:["Good morning! Make today so awesome that yesterday gets jealous. ☀️","Rise and shine! Today is full of possibilities.","Every morning is a new opportunity to do something amazing."],
+  birthday:["Wishing you a day filled with love, laughter and all things wonderful! 🎂","Happy Birthday! May all your dreams and wishes come true today!","Another year older, another year wiser, and still as amazing as ever! 🎉"],
+  goodluck:["Believe in yourself — you've got this! 🍀","Good luck! Luck is what happens when preparation meets opportunity.","The best luck of all is the luck you make for yourself!"],
+};
+Object.entries(DB).forEach(([k,arr])=>{router.get(`/${k}`,(req,res)=>res.json({status:true,creator:C(),result:arr[Math.floor(Math.random()*arr.length)]}));});
+router.get('/joke',async(req,res)=>{const{category='Any',blacklist}=req.query;try{let u=`https://v2.jokeapi.dev/joke/${category}?format=json`;if(blacklist)u+=`&blacklistFlags=${blacklist}`;const r=await axios.get(u,{timeout:8000});const d=r.data;res.json({status:true,creator:C(),result:{category:d.category,type:d.type,joke:d.joke||null,setup:d.setup||null,punchline:d.delivery||null,safe:d.safe}});}catch{res.json({status:true,creator:C(),result:DB.jokes[Math.floor(Math.random()*DB.jokes.length)]});}});
+router.get('/meme', async(req,res)=>{const s=['memes','dankmemes','ProgrammerHumor','funny'],sub=req.query.subreddit||s[Math.floor(Math.random()*s.length)];try{const r=await axios.get(`https://meme-api.com/gimme/${sub}`,{timeout:8000});res.json({status:true,creator:C(),result:{title:r.data.title,url:r.data.url,subreddit:r.data.subreddit,author:r.data.author,upvotes:r.data.ups,nsfw:r.data.nsfw}});}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+router.get('/quote',async(req,res)=>{try{const u=req.query.category?`https://api.quotable.io/random?tags=${req.query.category}`:'https://api.quotable.io/random';const r=await axios.get(u,{timeout:8000});res.json({status:true,creator:C(),result:{quote:r.data.content,author:r.data.author,tags:r.data.tags}});}catch{res.json({status:true,creator:C(),result:DB.quotes[Math.floor(Math.random()*DB.quotes.length)]});}});
+router.get('/fact', async(req,res)=>{try{const r=await axios.get('https://uselessfacts.jsph.pl/api/v2/facts/random?language=en',{timeout:8000});res.json({status:true,creator:C(),result:r.data.text});}catch{const f=["Honey never spoils — 3000-year-old honey in Egyptian tombs was still edible.","A day on Venus is longer than a year on Venus.","Bananas are technically berries, but strawberries are not."];res.json({status:true,creator:C(),result:f[Math.floor(Math.random()*f.length)]});}});
+router.get('/trivia',async(req,res)=>{const{difficulty='medium',amount='1',category}=req.query;try{let u=`https://opentdb.com/api.php?amount=${Math.min(parseInt(amount),10)}&type=multiple&difficulty=${difficulty}`;if(category)u+=`&category=${category}`;const r=await axios.get(u,{timeout:8000});if(r.data.response_code!==0)return res.json({status:false,creator:C(),error:'No trivia found'});const result=r.data.results.map(q=>({category:q.category,difficulty:q.difficulty,question:q.question.replace(/&[^;]+;/g,c=>({'&quot;':'"','&#039;':"'",'&amp;':'&'}[c]||c)),correct:q.correct_answer,choices:[...q.incorrect_answers,q.correct_answer].sort(()=>Math.random()-.5)}));res.json({status:true,creator:C(),count:result.length,result:result.length===1?result[0]:result});}catch(e){res.json({status:false,creator:C(),error:e.message});}});
+module.exports=router;
